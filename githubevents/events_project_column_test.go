@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnProjectColumnEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnProjectColumnEventAny(t *testing.T) {
 			name: "must add single ProjectColumnEventHandleFunc",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnProjectColumnEventAny(t *testing.T) {
 			name: "must add multiple ProjectColumnEventHandleFuncs",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnProjectColumnEventAny(t *testing.T) {
 			name: "must add single ProjectColumnEventHandleFunc",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnProjectColumnEventAny(t *testing.T) {
 			name: "must add multiple ProjectColumnEventHandleFuncs",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnProjectColumnEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectColumnEventAny(func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+			g.SetOnProjectColumnEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 				return nil
 			})
 			g.SetOnProjectColumnEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnProjectColumnEventAny(t *testing.T) {
 }
 
 func TestHandleProjectColumnEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleProjectColumnEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectColumnEventAny(func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+			g.OnProjectColumnEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectColumnEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectColumnEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleProjectColumnEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnProjectColumnEventCreated(t *testing.T) {
 			name: "must add single ProjectColumnEventHandleFunc",
 			args: args{
 				callbacks: []ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnProjectColumnEventCreated(t *testing.T) {
 			name: "must add multiple ProjectColumnEventHandleFunc",
 			args: args{
 				callbacks: []ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnProjectColumnEventCreated(t *testing.T) {
 			name: "must add single ProjectColumnEventHandleFunc",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnProjectColumnEventCreated(t *testing.T) {
 			name: "must add multiple ProjectColumnEventHandleFuncs",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnProjectColumnEventCreated(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectColumnEventCreated(func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+			g.SetOnProjectColumnEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 				return nil
 			})
 			g.SetOnProjectColumnEventCreated(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnProjectColumnEventCreated(t *testing.T) {
 }
 
 func TestHandleProjectColumnEventCreated(t *testing.T) {
+	ctx := context.Background()
 	action := ProjectColumnEventCreatedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleProjectColumnEventCreated(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectColumnEventCreated(func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+			g.OnProjectColumnEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectColumnEventCreated(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectColumnEventCreated(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleProjectColumnEventCreated() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnProjectColumnEventEdited(t *testing.T) {
 			name: "must add single ProjectColumnEventHandleFunc",
 			args: args{
 				callbacks: []ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnProjectColumnEventEdited(t *testing.T) {
 			name: "must add multiple ProjectColumnEventHandleFunc",
 			args: args{
 				callbacks: []ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnProjectColumnEventEdited(t *testing.T) {
 			name: "must add single ProjectColumnEventHandleFunc",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnProjectColumnEventEdited(t *testing.T) {
 			name: "must add multiple ProjectColumnEventHandleFuncs",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnProjectColumnEventEdited(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectColumnEventEdited(func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+			g.SetOnProjectColumnEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 				return nil
 			})
 			g.SetOnProjectColumnEventEdited(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnProjectColumnEventEdited(t *testing.T) {
 }
 
 func TestHandleProjectColumnEventEdited(t *testing.T) {
+	ctx := context.Background()
 	action := ProjectColumnEventEditedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandleProjectColumnEventEdited(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectColumnEventEdited(func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+			g.OnProjectColumnEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectColumnEventEdited(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectColumnEventEdited(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleProjectColumnEventEdited() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -559,7 +564,7 @@ func TestOnProjectColumnEventMoved(t *testing.T) {
 			name: "must add single ProjectColumnEventHandleFunc",
 			args: args{
 				callbacks: []ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -569,10 +574,10 @@ func TestOnProjectColumnEventMoved(t *testing.T) {
 			name: "must add multiple ProjectColumnEventHandleFunc",
 			args: args{
 				callbacks: []ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -603,7 +608,7 @@ func TestSetOnProjectColumnEventMoved(t *testing.T) {
 			name: "must add single ProjectColumnEventHandleFunc",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -614,10 +619,10 @@ func TestSetOnProjectColumnEventMoved(t *testing.T) {
 			name: "must add multiple ProjectColumnEventHandleFuncs",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -629,7 +634,7 @@ func TestSetOnProjectColumnEventMoved(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectColumnEventMoved(func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+			g.SetOnProjectColumnEventMoved(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 				return nil
 			})
 			g.SetOnProjectColumnEventMoved(tt.args.callbacks...)
@@ -641,6 +646,7 @@ func TestSetOnProjectColumnEventMoved(t *testing.T) {
 }
 
 func TestHandleProjectColumnEventMoved(t *testing.T) {
+	ctx := context.Background()
 	action := ProjectColumnEventMovedAction
 
 	emptyAction := ""
@@ -721,13 +727,13 @@ func TestHandleProjectColumnEventMoved(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectColumnEventMoved(func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+			g.OnProjectColumnEventMoved(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectColumnEventMoved(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectColumnEventMoved(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleProjectColumnEventMoved() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -746,7 +752,7 @@ func TestOnProjectColumnEventDeleted(t *testing.T) {
 			name: "must add single ProjectColumnEventHandleFunc",
 			args: args{
 				callbacks: []ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -756,10 +762,10 @@ func TestOnProjectColumnEventDeleted(t *testing.T) {
 			name: "must add multiple ProjectColumnEventHandleFunc",
 			args: args{
 				callbacks: []ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -790,7 +796,7 @@ func TestSetOnProjectColumnEventDeleted(t *testing.T) {
 			name: "must add single ProjectColumnEventHandleFunc",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -801,10 +807,10 @@ func TestSetOnProjectColumnEventDeleted(t *testing.T) {
 			name: "must add multiple ProjectColumnEventHandleFuncs",
 			args: args{
 				[]ProjectColumnEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 						return nil
 					},
 				},
@@ -816,7 +822,7 @@ func TestSetOnProjectColumnEventDeleted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectColumnEventDeleted(func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+			g.SetOnProjectColumnEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 				return nil
 			})
 			g.SetOnProjectColumnEventDeleted(tt.args.callbacks...)
@@ -828,6 +834,7 @@ func TestSetOnProjectColumnEventDeleted(t *testing.T) {
 }
 
 func TestHandleProjectColumnEventDeleted(t *testing.T) {
+	ctx := context.Background()
 	action := ProjectColumnEventDeletedAction
 
 	emptyAction := ""
@@ -908,13 +915,13 @@ func TestHandleProjectColumnEventDeleted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectColumnEventDeleted(func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+			g.OnProjectColumnEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectColumnEventDeleted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectColumnEventDeleted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleProjectColumnEventDeleted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -922,6 +929,7 @@ func TestHandleProjectColumnEventDeleted(t *testing.T) {
 }
 
 func TestProjectColumnEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -943,7 +951,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -951,7 +959,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -959,7 +967,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -983,7 +991,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -991,7 +999,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -999,13 +1007,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventCreatedAction)
 								return nil
 							},
@@ -1027,7 +1035,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1035,7 +1043,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1043,13 +1051,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventCreatedAction)
 								return nil
 							},
@@ -1071,7 +1079,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1079,7 +1087,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1087,13 +1095,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventCreatedAction)
 								return nil
 							},
@@ -1116,7 +1124,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1124,7 +1132,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1132,13 +1140,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventEditedAction)
 								return nil
 							},
@@ -1160,7 +1168,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1168,7 +1176,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1176,13 +1184,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventEditedAction)
 								return nil
 							},
@@ -1204,7 +1212,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1212,7 +1220,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1220,13 +1228,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventEditedAction)
 								return nil
 							},
@@ -1249,7 +1257,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1257,7 +1265,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1265,13 +1273,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventMovedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventMovedAction)
 								return nil
 							},
@@ -1293,7 +1301,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1301,7 +1309,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1309,13 +1317,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventMovedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventMovedAction)
 								return nil
 							},
@@ -1337,7 +1345,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1345,7 +1353,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1353,13 +1361,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventMovedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventMovedAction)
 								return nil
 							},
@@ -1382,7 +1390,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1390,7 +1398,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1398,13 +1406,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventDeletedAction)
 								return nil
 							},
@@ -1426,7 +1434,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1434,7 +1442,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1442,13 +1450,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventDeletedAction)
 								return nil
 							},
@@ -1470,7 +1478,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1478,7 +1486,7 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1486,13 +1494,13 @@ func TestProjectColumnEvent(t *testing.T) {
 					},
 					onProjectColumnEvent: map[string][]ProjectColumnEventHandleFunc{
 						ProjectColumnEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectColumnEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 								t.Logf("%s action called", ProjectColumnEventDeletedAction)
 								return nil
 							},
@@ -1514,7 +1522,7 @@ func TestProjectColumnEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.ProjectColumnEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.ProjectColumnEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("ProjectColumnEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

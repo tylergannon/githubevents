@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnStarEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnStarEventAny(t *testing.T) {
 			name: "must add single StarEventHandleFunc",
 			args: args{
 				[]StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnStarEventAny(t *testing.T) {
 			name: "must add multiple StarEventHandleFuncs",
 			args: args{
 				[]StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnStarEventAny(t *testing.T) {
 			name: "must add single StarEventHandleFunc",
 			args: args{
 				[]StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnStarEventAny(t *testing.T) {
 			name: "must add multiple StarEventHandleFuncs",
 			args: args{
 				[]StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnStarEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnStarEventAny(func(deliveryID string, eventName string, event *github.StarEvent) error {
+			g.SetOnStarEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 				return nil
 			})
 			g.SetOnStarEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnStarEventAny(t *testing.T) {
 }
 
 func TestHandleStarEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleStarEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnStarEventAny(func(deliveryID string, eventName string, event *github.StarEvent) error {
+			g.OnStarEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleStarEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleStarEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleStarEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnStarEventCreated(t *testing.T) {
 			name: "must add single StarEventHandleFunc",
 			args: args{
 				callbacks: []StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnStarEventCreated(t *testing.T) {
 			name: "must add multiple StarEventHandleFunc",
 			args: args{
 				callbacks: []StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnStarEventCreated(t *testing.T) {
 			name: "must add single StarEventHandleFunc",
 			args: args{
 				[]StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnStarEventCreated(t *testing.T) {
 			name: "must add multiple StarEventHandleFuncs",
 			args: args{
 				[]StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnStarEventCreated(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnStarEventCreated(func(deliveryID string, eventName string, event *github.StarEvent) error {
+			g.SetOnStarEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 				return nil
 			})
 			g.SetOnStarEventCreated(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnStarEventCreated(t *testing.T) {
 }
 
 func TestHandleStarEventCreated(t *testing.T) {
+	ctx := context.Background()
 	action := StarEventCreatedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleStarEventCreated(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnStarEventCreated(func(deliveryID string, eventName string, event *github.StarEvent) error {
+			g.OnStarEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleStarEventCreated(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleStarEventCreated(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleStarEventCreated() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnStarEventDeleted(t *testing.T) {
 			name: "must add single StarEventHandleFunc",
 			args: args{
 				callbacks: []StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnStarEventDeleted(t *testing.T) {
 			name: "must add multiple StarEventHandleFunc",
 			args: args{
 				callbacks: []StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnStarEventDeleted(t *testing.T) {
 			name: "must add single StarEventHandleFunc",
 			args: args{
 				[]StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnStarEventDeleted(t *testing.T) {
 			name: "must add multiple StarEventHandleFuncs",
 			args: args{
 				[]StarEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.StarEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnStarEventDeleted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnStarEventDeleted(func(deliveryID string, eventName string, event *github.StarEvent) error {
+			g.SetOnStarEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 				return nil
 			})
 			g.SetOnStarEventDeleted(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnStarEventDeleted(t *testing.T) {
 }
 
 func TestHandleStarEventDeleted(t *testing.T) {
+	ctx := context.Background()
 	action := StarEventDeletedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandleStarEventDeleted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnStarEventDeleted(func(deliveryID string, eventName string, event *github.StarEvent) error {
+			g.OnStarEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleStarEventDeleted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleStarEventDeleted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleStarEventDeleted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -548,6 +553,7 @@ func TestHandleStarEventDeleted(t *testing.T) {
 }
 
 func TestStarEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -569,7 +575,7 @@ func TestStarEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -577,7 +583,7 @@ func TestStarEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -585,7 +591,7 @@ func TestStarEvent(t *testing.T) {
 					},
 					onStarEvent: map[string][]StarEventHandleFunc{
 						StarEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -609,7 +615,7 @@ func TestStarEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -617,7 +623,7 @@ func TestStarEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -625,13 +631,13 @@ func TestStarEvent(t *testing.T) {
 					},
 					onStarEvent: map[string][]StarEventHandleFunc{
 						StarEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						StarEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Logf("%s action called", StarEventCreatedAction)
 								return nil
 							},
@@ -653,7 +659,7 @@ func TestStarEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -661,7 +667,7 @@ func TestStarEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -669,13 +675,13 @@ func TestStarEvent(t *testing.T) {
 					},
 					onStarEvent: map[string][]StarEventHandleFunc{
 						StarEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						StarEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Logf("%s action called", StarEventCreatedAction)
 								return nil
 							},
@@ -697,7 +703,7 @@ func TestStarEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -705,7 +711,7 @@ func TestStarEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -713,13 +719,13 @@ func TestStarEvent(t *testing.T) {
 					},
 					onStarEvent: map[string][]StarEventHandleFunc{
 						StarEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						StarEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Logf("%s action called", StarEventCreatedAction)
 								return nil
 							},
@@ -742,7 +748,7 @@ func TestStarEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -750,7 +756,7 @@ func TestStarEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -758,13 +764,13 @@ func TestStarEvent(t *testing.T) {
 					},
 					onStarEvent: map[string][]StarEventHandleFunc{
 						StarEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						StarEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Logf("%s action called", StarEventDeletedAction)
 								return nil
 							},
@@ -786,7 +792,7 @@ func TestStarEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -794,7 +800,7 @@ func TestStarEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -802,13 +808,13 @@ func TestStarEvent(t *testing.T) {
 					},
 					onStarEvent: map[string][]StarEventHandleFunc{
 						StarEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						StarEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Logf("%s action called", StarEventDeletedAction)
 								return nil
 							},
@@ -830,7 +836,7 @@ func TestStarEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -838,7 +844,7 @@ func TestStarEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -846,13 +852,13 @@ func TestStarEvent(t *testing.T) {
 					},
 					onStarEvent: map[string][]StarEventHandleFunc{
 						StarEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						StarEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.StarEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 								t.Logf("%s action called", StarEventDeletedAction)
 								return nil
 							},
@@ -874,7 +880,7 @@ func TestStarEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.StarEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.StarEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("StarEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

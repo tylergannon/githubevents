@@ -11,11 +11,13 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"fmt"
-	"github.com/google/go-github/v62/github"
-	"golang.org/x/sync/errgroup"
 	"net/http"
 	"sync"
+
+	"github.com/google/go-github/v62/github"
+	"golang.org/x/sync/errgroup"
 )
 
 // Actions are used to identify registered callbacks.
@@ -54,7 +56,7 @@ func New(webhookSecret string) *EventHandler {
 }
 
 // EventHandleFunc represents a generic callback function which receives any event.
-type EventHandleFunc func(deliveryID string, eventName string, event interface{}) error
+type EventHandleFunc func(ctx context.Context, deliveryID string, eventName string, event interface{}) error
 
 // OnBeforeAny registers callbacks which are triggered before any event.
 //
@@ -91,7 +93,7 @@ func (g *EventHandler) SetOnBeforeAny(callbacks ...EventHandleFunc) {
 	g.onBeforeAny[EventAnyAction] = callbacks
 }
 
-func (g *EventHandler) handleBeforeAny(deliveryID string, eventName string, event interface{}) error {
+func (g *EventHandler) handleBeforeAny(ctx context.Context, deliveryID string, eventName string, event interface{}) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -102,7 +104,7 @@ func (g *EventHandler) handleBeforeAny(deliveryID string, eventName string, even
 	for _, h := range g.onBeforeAny[EventAnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -150,7 +152,7 @@ func (g *EventHandler) SetOnAfterAny(callbacks ...EventHandleFunc) {
 	g.onAfterAny[EventAnyAction] = callbacks
 }
 
-func (g *EventHandler) handleAfterAny(deliveryID string, eventName string, event interface{}) error {
+func (g *EventHandler) handleAfterAny(ctx context.Context, deliveryID string, eventName string, event interface{}) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -161,7 +163,7 @@ func (g *EventHandler) handleAfterAny(deliveryID string, eventName string, event
 	for _, h := range g.onAfterAny[EventAnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -241,22 +243,25 @@ func (g *EventHandler) handleError(deliveryID string, eventName string, event in
 func (g *EventHandler) HandleEventRequest(req *http.Request) error {
 	payload, err := github.ValidatePayload(req, []byte(g.WebhookSecret))
 	if err != nil {
-		fmt.Errorf("could not validate webhook payload: err=%s\n", err)
-		return err
+		return fmt.Errorf("payload validation fail: %w", err)
 	}
 	event, err := github.ParseWebHook(github.WebHookType(req), payload)
 	if err != nil {
-		fmt.Errorf("could not parse webhook: err=%s\n", err)
-		return err
+		return fmt.Errorf("could not parse webhook: %w", err)
 	}
 
 	deliveryID := github.DeliveryID(req)
 	eventName := github.WebHookType(req)
 
+	return g.HandleParsedEvent(req.Context(), deliveryID, eventName, event)
+}
+
+// HandleParsedEvent takes the parsed/validated event and the request context, executes registered handlers and returns an error.
+func (g *EventHandler) HandleParsedEvent(ctx context.Context, deliveryID string, eventName string, event interface{}) error {
 	switch event := event.(type) {
 	{{ range $_, $webhook := .Webhooks }}
 	case *github.{{ $webhook.Event }}:
-		return g.{{ $webhook.Event }}(deliveryID, eventName, event)
+		return g.{{ $webhook.Event }}(ctx, deliveryID, eventName, event)
 	{{ end }}
 	}
 	return nil

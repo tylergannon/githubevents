@@ -8,7 +8,9 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/google/go-github/v62/github"
 	"golang.org/x/sync/errgroup"
 )
@@ -43,7 +45,7 @@ const (
 // 'deliveryID' (type: string) is the unique webhook delivery ID.
 // 'eventName' (type: string) is the name of the event.
 // 'event' (type: *github.ProjectColumnEvent) is the webhook payload.
-type ProjectColumnEventHandleFunc func(deliveryID string, eventName string, event *github.ProjectColumnEvent) error
+type ProjectColumnEventHandleFunc func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error
 
 // OnProjectColumnEventCreated registers callbacks listening to events of type github.ProjectColumnEvent and action 'created'.
 //
@@ -91,7 +93,7 @@ func (g *EventHandler) SetOnProjectColumnEventCreated(callbacks ...ProjectColumn
 	g.onProjectColumnEvent[ProjectColumnEventCreatedAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectColumnEventCreated(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+func (g *EventHandler) handleProjectColumnEventCreated(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -111,7 +113,7 @@ func (g *EventHandler) handleProjectColumnEventCreated(deliveryID string, eventN
 			for _, h := range g.onProjectColumnEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -172,7 +174,7 @@ func (g *EventHandler) SetOnProjectColumnEventEdited(callbacks ...ProjectColumnE
 	g.onProjectColumnEvent[ProjectColumnEventEditedAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectColumnEventEdited(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+func (g *EventHandler) handleProjectColumnEventEdited(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -192,7 +194,7 @@ func (g *EventHandler) handleProjectColumnEventEdited(deliveryID string, eventNa
 			for _, h := range g.onProjectColumnEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -253,7 +255,7 @@ func (g *EventHandler) SetOnProjectColumnEventMoved(callbacks ...ProjectColumnEv
 	g.onProjectColumnEvent[ProjectColumnEventMovedAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectColumnEventMoved(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+func (g *EventHandler) handleProjectColumnEventMoved(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -273,7 +275,7 @@ func (g *EventHandler) handleProjectColumnEventMoved(deliveryID string, eventNam
 			for _, h := range g.onProjectColumnEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -334,7 +336,7 @@ func (g *EventHandler) SetOnProjectColumnEventDeleted(callbacks ...ProjectColumn
 	g.onProjectColumnEvent[ProjectColumnEventDeletedAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectColumnEventDeleted(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+func (g *EventHandler) handleProjectColumnEventDeleted(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -354,7 +356,7 @@ func (g *EventHandler) handleProjectColumnEventDeleted(deliveryID string, eventN
 			for _, h := range g.onProjectColumnEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -415,7 +417,7 @@ func (g *EventHandler) SetOnProjectColumnEventAny(callbacks ...ProjectColumnEven
 	g.onProjectColumnEvent[ProjectColumnEventAnyAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectColumnEventAny(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+func (g *EventHandler) handleProjectColumnEventAny(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -426,7 +428,7 @@ func (g *EventHandler) handleProjectColumnEventAny(deliveryID string, eventName 
 	for _, h := range g.onProjectColumnEvent[ProjectColumnEventAnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -448,14 +450,14 @@ func (g *EventHandler) handleProjectColumnEventAny(deliveryID string, eventName 
 // 3) All callbacks registered with OnAfterAny are executed in parallel.
 //
 // on any error all callbacks registered with OnError are executed in parallel.
-func (g *EventHandler) ProjectColumnEvent(deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
+func (g *EventHandler) ProjectColumnEvent(ctx context.Context, deliveryID string, eventName string, event *github.ProjectColumnEvent) error {
 
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
 	action := *event.Action
 
-	err := g.handleBeforeAny(deliveryID, eventName, event)
+	err := g.handleBeforeAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
@@ -463,37 +465,37 @@ func (g *EventHandler) ProjectColumnEvent(deliveryID string, eventName string, e
 	switch action {
 
 	case ProjectColumnEventCreatedAction:
-		err := g.handleProjectColumnEventCreated(deliveryID, eventName, event)
+		err := g.handleProjectColumnEventCreated(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case ProjectColumnEventEditedAction:
-		err := g.handleProjectColumnEventEdited(deliveryID, eventName, event)
+		err := g.handleProjectColumnEventEdited(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case ProjectColumnEventMovedAction:
-		err := g.handleProjectColumnEventMoved(deliveryID, eventName, event)
+		err := g.handleProjectColumnEventMoved(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case ProjectColumnEventDeletedAction:
-		err := g.handleProjectColumnEventDeleted(deliveryID, eventName, event)
+		err := g.handleProjectColumnEventDeleted(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	default:
-		err := g.handleProjectColumnEventAny(deliveryID, eventName, event)
+		err := g.handleProjectColumnEventAny(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 	}
 
-	err = g.handleAfterAny(deliveryID, eventName, event)
+	err = g.handleAfterAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}

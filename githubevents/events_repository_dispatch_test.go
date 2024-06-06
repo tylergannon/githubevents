@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnRepositoryDispatchEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnRepositoryDispatchEventAny(t *testing.T) {
 			name: "must add single RepositoryDispatchEventHandleFunc",
 			args: args{
 				[]RepositoryDispatchEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnRepositoryDispatchEventAny(t *testing.T) {
 			name: "must add multiple RepositoryDispatchEventHandleFuncs",
 			args: args{
 				[]RepositoryDispatchEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnRepositoryDispatchEventAny(t *testing.T) {
 			name: "must add single RepositoryDispatchEventHandleFunc",
 			args: args{
 				[]RepositoryDispatchEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnRepositoryDispatchEventAny(t *testing.T) {
 			name: "must add multiple RepositoryDispatchEventHandleFuncs",
 			args: args{
 				[]RepositoryDispatchEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnRepositoryDispatchEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryDispatchEventAny(func(deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
+			g.SetOnRepositoryDispatchEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryDispatchEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnRepositoryDispatchEventAny(t *testing.T) {
 }
 
 func TestHandleRepositoryDispatchEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	type args struct {
 		deliveryID string
@@ -158,13 +161,13 @@ func TestHandleRepositoryDispatchEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryDispatchEventAny(func(deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
+			g.OnRepositoryDispatchEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryDispatchEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryDispatchEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleRepositoryDispatchEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -172,6 +175,7 @@ func TestHandleRepositoryDispatchEventAny(t *testing.T) {
 }
 
 func TestRepositoryDispatchEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -193,7 +197,7 @@ func TestRepositoryDispatchEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -201,7 +205,7 @@ func TestRepositoryDispatchEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -209,7 +213,7 @@ func TestRepositoryDispatchEvent(t *testing.T) {
 					},
 					onRepositoryDispatchEvent: map[string][]RepositoryDispatchEventHandleFunc{
 						RepositoryDispatchEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryDispatchEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -232,7 +236,7 @@ func TestRepositoryDispatchEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.RepositoryDispatchEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.RepositoryDispatchEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("RepositoryDispatchEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

@@ -8,7 +8,9 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/google/go-github/v62/github"
 	"golang.org/x/sync/errgroup"
 )
@@ -27,7 +29,7 @@ const (
 // 'deliveryID' (type: string) is the unique webhook delivery ID.
 // 'eventName' (type: string) is the name of the event.
 // 'event' (type: *github.PageBuildEvent) is the webhook payload.
-type PageBuildEventHandleFunc func(deliveryID string, eventName string, event *github.PageBuildEvent) error
+type PageBuildEventHandleFunc func(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error
 
 // OnPageBuildEventAny registers callbacks listening to any events of type github.PageBuildEvent
 //
@@ -75,7 +77,7 @@ func (g *EventHandler) SetOnPageBuildEventAny(callbacks ...PageBuildEventHandleF
 	g.onPageBuildEvent[PageBuildEventAnyAction] = callbacks
 }
 
-func (g *EventHandler) handlePageBuildEventAny(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+func (g *EventHandler) handlePageBuildEventAny(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -86,7 +88,7 @@ func (g *EventHandler) handlePageBuildEventAny(deliveryID string, eventName stri
 	for _, h := range g.onPageBuildEvent[PageBuildEventAnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -108,23 +110,23 @@ func (g *EventHandler) handlePageBuildEventAny(deliveryID string, eventName stri
 // 3) All callbacks registered with OnAfterAny are executed in parallel.
 //
 // on any error all callbacks registered with OnError are executed in parallel.
-func (g *EventHandler) PageBuildEvent(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+func (g *EventHandler) PageBuildEvent(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 
 	if event == nil {
 		return fmt.Errorf("event action was empty or nil")
 	}
 
-	err := g.handleBeforeAny(deliveryID, eventName, event)
+	err := g.handleBeforeAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
 
-	err = g.handlePageBuildEventAny(deliveryID, eventName, event)
+	err = g.handlePageBuildEventAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
 
-	err = g.handleAfterAny(deliveryID, eventName, event)
+	err = g.handleAfterAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}

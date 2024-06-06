@@ -1,4 +1,4 @@
-module github.com/cbrgm/githubevents
+module github.com/tylergannon/githubevents
 
 go 1.22.2
 

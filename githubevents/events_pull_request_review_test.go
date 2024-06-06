@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnPullRequestReviewEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnPullRequestReviewEventAny(t *testing.T) {
 			name: "must add single PullRequestReviewEventHandleFunc",
 			args: args{
 				[]PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnPullRequestReviewEventAny(t *testing.T) {
 			name: "must add multiple PullRequestReviewEventHandleFuncs",
 			args: args{
 				[]PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnPullRequestReviewEventAny(t *testing.T) {
 			name: "must add single PullRequestReviewEventHandleFunc",
 			args: args{
 				[]PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnPullRequestReviewEventAny(t *testing.T) {
 			name: "must add multiple PullRequestReviewEventHandleFuncs",
 			args: args{
 				[]PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnPullRequestReviewEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnPullRequestReviewEventAny(func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+			g.SetOnPullRequestReviewEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 				return nil
 			})
 			g.SetOnPullRequestReviewEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnPullRequestReviewEventAny(t *testing.T) {
 }
 
 func TestHandlePullRequestReviewEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandlePullRequestReviewEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnPullRequestReviewEventAny(func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+			g.OnPullRequestReviewEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handlePullRequestReviewEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handlePullRequestReviewEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandlePullRequestReviewEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnPullRequestReviewEventSubmitted(t *testing.T) {
 			name: "must add single PullRequestReviewEventHandleFunc",
 			args: args{
 				callbacks: []PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnPullRequestReviewEventSubmitted(t *testing.T) {
 			name: "must add multiple PullRequestReviewEventHandleFunc",
 			args: args{
 				callbacks: []PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnPullRequestReviewEventSubmitted(t *testing.T) {
 			name: "must add single PullRequestReviewEventHandleFunc",
 			args: args{
 				[]PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnPullRequestReviewEventSubmitted(t *testing.T) {
 			name: "must add multiple PullRequestReviewEventHandleFuncs",
 			args: args{
 				[]PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnPullRequestReviewEventSubmitted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnPullRequestReviewEventSubmitted(func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+			g.SetOnPullRequestReviewEventSubmitted(func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 				return nil
 			})
 			g.SetOnPullRequestReviewEventSubmitted(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnPullRequestReviewEventSubmitted(t *testing.T) {
 }
 
 func TestHandlePullRequestReviewEventSubmitted(t *testing.T) {
+	ctx := context.Background()
 	action := PullRequestReviewEventSubmittedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandlePullRequestReviewEventSubmitted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnPullRequestReviewEventSubmitted(func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+			g.OnPullRequestReviewEventSubmitted(func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handlePullRequestReviewEventSubmitted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handlePullRequestReviewEventSubmitted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handlePullRequestReviewEventSubmitted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnPullRequestReviewEventEdited(t *testing.T) {
 			name: "must add single PullRequestReviewEventHandleFunc",
 			args: args{
 				callbacks: []PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnPullRequestReviewEventEdited(t *testing.T) {
 			name: "must add multiple PullRequestReviewEventHandleFunc",
 			args: args{
 				callbacks: []PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnPullRequestReviewEventEdited(t *testing.T) {
 			name: "must add single PullRequestReviewEventHandleFunc",
 			args: args{
 				[]PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnPullRequestReviewEventEdited(t *testing.T) {
 			name: "must add multiple PullRequestReviewEventHandleFuncs",
 			args: args{
 				[]PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnPullRequestReviewEventEdited(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnPullRequestReviewEventEdited(func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+			g.SetOnPullRequestReviewEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 				return nil
 			})
 			g.SetOnPullRequestReviewEventEdited(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnPullRequestReviewEventEdited(t *testing.T) {
 }
 
 func TestHandlePullRequestReviewEventEdited(t *testing.T) {
+	ctx := context.Background()
 	action := PullRequestReviewEventEditedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandlePullRequestReviewEventEdited(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnPullRequestReviewEventEdited(func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+			g.OnPullRequestReviewEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handlePullRequestReviewEventEdited(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handlePullRequestReviewEventEdited(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handlePullRequestReviewEventEdited() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -559,7 +564,7 @@ func TestOnPullRequestReviewEventDismissed(t *testing.T) {
 			name: "must add single PullRequestReviewEventHandleFunc",
 			args: args{
 				callbacks: []PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -569,10 +574,10 @@ func TestOnPullRequestReviewEventDismissed(t *testing.T) {
 			name: "must add multiple PullRequestReviewEventHandleFunc",
 			args: args{
 				callbacks: []PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -603,7 +608,7 @@ func TestSetOnPullRequestReviewEventDismissed(t *testing.T) {
 			name: "must add single PullRequestReviewEventHandleFunc",
 			args: args{
 				[]PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -614,10 +619,10 @@ func TestSetOnPullRequestReviewEventDismissed(t *testing.T) {
 			name: "must add multiple PullRequestReviewEventHandleFuncs",
 			args: args{
 				[]PullRequestReviewEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 						return nil
 					},
 				},
@@ -629,7 +634,7 @@ func TestSetOnPullRequestReviewEventDismissed(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnPullRequestReviewEventDismissed(func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+			g.SetOnPullRequestReviewEventDismissed(func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 				return nil
 			})
 			g.SetOnPullRequestReviewEventDismissed(tt.args.callbacks...)
@@ -641,6 +646,7 @@ func TestSetOnPullRequestReviewEventDismissed(t *testing.T) {
 }
 
 func TestHandlePullRequestReviewEventDismissed(t *testing.T) {
+	ctx := context.Background()
 	action := PullRequestReviewEventDismissedAction
 
 	emptyAction := ""
@@ -721,13 +727,13 @@ func TestHandlePullRequestReviewEventDismissed(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnPullRequestReviewEventDismissed(func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+			g.OnPullRequestReviewEventDismissed(func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handlePullRequestReviewEventDismissed(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handlePullRequestReviewEventDismissed(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handlePullRequestReviewEventDismissed() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -735,6 +741,7 @@ func TestHandlePullRequestReviewEventDismissed(t *testing.T) {
 }
 
 func TestPullRequestReviewEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -756,7 +763,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -764,7 +771,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -772,7 +779,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onPullRequestReviewEvent: map[string][]PullRequestReviewEventHandleFunc{
 						PullRequestReviewEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -796,7 +803,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -804,7 +811,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -812,13 +819,13 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onPullRequestReviewEvent: map[string][]PullRequestReviewEventHandleFunc{
 						PullRequestReviewEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						PullRequestReviewEventSubmittedAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Logf("%s action called", PullRequestReviewEventSubmittedAction)
 								return nil
 							},
@@ -840,7 +847,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -848,7 +855,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -856,13 +863,13 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onPullRequestReviewEvent: map[string][]PullRequestReviewEventHandleFunc{
 						PullRequestReviewEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						PullRequestReviewEventSubmittedAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Logf("%s action called", PullRequestReviewEventSubmittedAction)
 								return nil
 							},
@@ -884,7 +891,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -892,7 +899,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -900,13 +907,13 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onPullRequestReviewEvent: map[string][]PullRequestReviewEventHandleFunc{
 						PullRequestReviewEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						PullRequestReviewEventSubmittedAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Logf("%s action called", PullRequestReviewEventSubmittedAction)
 								return nil
 							},
@@ -929,7 +936,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -937,7 +944,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -945,13 +952,13 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onPullRequestReviewEvent: map[string][]PullRequestReviewEventHandleFunc{
 						PullRequestReviewEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						PullRequestReviewEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Logf("%s action called", PullRequestReviewEventEditedAction)
 								return nil
 							},
@@ -973,7 +980,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -981,7 +988,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -989,13 +996,13 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onPullRequestReviewEvent: map[string][]PullRequestReviewEventHandleFunc{
 						PullRequestReviewEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						PullRequestReviewEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Logf("%s action called", PullRequestReviewEventEditedAction)
 								return nil
 							},
@@ -1017,7 +1024,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1025,7 +1032,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1033,13 +1040,13 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onPullRequestReviewEvent: map[string][]PullRequestReviewEventHandleFunc{
 						PullRequestReviewEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						PullRequestReviewEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Logf("%s action called", PullRequestReviewEventEditedAction)
 								return nil
 							},
@@ -1062,7 +1069,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1070,7 +1077,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1078,13 +1085,13 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onPullRequestReviewEvent: map[string][]PullRequestReviewEventHandleFunc{
 						PullRequestReviewEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						PullRequestReviewEventDismissedAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Logf("%s action called", PullRequestReviewEventDismissedAction)
 								return nil
 							},
@@ -1106,7 +1113,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1114,7 +1121,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1122,13 +1129,13 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onPullRequestReviewEvent: map[string][]PullRequestReviewEventHandleFunc{
 						PullRequestReviewEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						PullRequestReviewEventDismissedAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Logf("%s action called", PullRequestReviewEventDismissedAction)
 								return nil
 							},
@@ -1150,7 +1157,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1158,7 +1165,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1166,13 +1173,13 @@ func TestPullRequestReviewEvent(t *testing.T) {
 					},
 					onPullRequestReviewEvent: map[string][]PullRequestReviewEventHandleFunc{
 						PullRequestReviewEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						PullRequestReviewEventDismissedAction: {
-							func(deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PullRequestReviewEvent) error {
 								t.Logf("%s action called", PullRequestReviewEventDismissedAction)
 								return nil
 							},
@@ -1194,7 +1201,7 @@ func TestPullRequestReviewEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.PullRequestReviewEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.PullRequestReviewEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("PullRequestReviewEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

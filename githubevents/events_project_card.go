@@ -8,7 +8,9 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/google/go-github/v62/github"
 	"golang.org/x/sync/errgroup"
 )
@@ -47,7 +49,7 @@ const (
 // 'deliveryID' (type: string) is the unique webhook delivery ID.
 // 'eventName' (type: string) is the name of the event.
 // 'event' (type: *github.ProjectCardEvent) is the webhook payload.
-type ProjectCardEventHandleFunc func(deliveryID string, eventName string, event *github.ProjectCardEvent) error
+type ProjectCardEventHandleFunc func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error
 
 // OnProjectCardEventCreated registers callbacks listening to events of type github.ProjectCardEvent and action 'created'.
 //
@@ -95,7 +97,7 @@ func (g *EventHandler) SetOnProjectCardEventCreated(callbacks ...ProjectCardEven
 	g.onProjectCardEvent[ProjectCardEventCreatedAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectCardEventCreated(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+func (g *EventHandler) handleProjectCardEventCreated(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -115,7 +117,7 @@ func (g *EventHandler) handleProjectCardEventCreated(deliveryID string, eventNam
 			for _, h := range g.onProjectCardEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -176,7 +178,7 @@ func (g *EventHandler) SetOnProjectCardEventEdited(callbacks ...ProjectCardEvent
 	g.onProjectCardEvent[ProjectCardEventEditedAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectCardEventEdited(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+func (g *EventHandler) handleProjectCardEventEdited(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -196,7 +198,7 @@ func (g *EventHandler) handleProjectCardEventEdited(deliveryID string, eventName
 			for _, h := range g.onProjectCardEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -257,7 +259,7 @@ func (g *EventHandler) SetOnProjectCardEventConverted(callbacks ...ProjectCardEv
 	g.onProjectCardEvent[ProjectCardEventConvertedAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectCardEventConverted(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+func (g *EventHandler) handleProjectCardEventConverted(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -277,7 +279,7 @@ func (g *EventHandler) handleProjectCardEventConverted(deliveryID string, eventN
 			for _, h := range g.onProjectCardEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -338,7 +340,7 @@ func (g *EventHandler) SetOnProjectCardEventMoved(callbacks ...ProjectCardEventH
 	g.onProjectCardEvent[ProjectCardEventMovedAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectCardEventMoved(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+func (g *EventHandler) handleProjectCardEventMoved(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -358,7 +360,7 @@ func (g *EventHandler) handleProjectCardEventMoved(deliveryID string, eventName 
 			for _, h := range g.onProjectCardEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -419,7 +421,7 @@ func (g *EventHandler) SetOnProjectCardEventDeleted(callbacks ...ProjectCardEven
 	g.onProjectCardEvent[ProjectCardEventDeletedAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectCardEventDeleted(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+func (g *EventHandler) handleProjectCardEventDeleted(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -439,7 +441,7 @@ func (g *EventHandler) handleProjectCardEventDeleted(deliveryID string, eventNam
 			for _, h := range g.onProjectCardEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -500,7 +502,7 @@ func (g *EventHandler) SetOnProjectCardEventAny(callbacks ...ProjectCardEventHan
 	g.onProjectCardEvent[ProjectCardEventAnyAction] = callbacks
 }
 
-func (g *EventHandler) handleProjectCardEventAny(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+func (g *EventHandler) handleProjectCardEventAny(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -511,7 +513,7 @@ func (g *EventHandler) handleProjectCardEventAny(deliveryID string, eventName st
 	for _, h := range g.onProjectCardEvent[ProjectCardEventAnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -533,14 +535,14 @@ func (g *EventHandler) handleProjectCardEventAny(deliveryID string, eventName st
 // 3) All callbacks registered with OnAfterAny are executed in parallel.
 //
 // on any error all callbacks registered with OnError are executed in parallel.
-func (g *EventHandler) ProjectCardEvent(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+func (g *EventHandler) ProjectCardEvent(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
 	action := *event.Action
 
-	err := g.handleBeforeAny(deliveryID, eventName, event)
+	err := g.handleBeforeAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
@@ -548,43 +550,43 @@ func (g *EventHandler) ProjectCardEvent(deliveryID string, eventName string, eve
 	switch action {
 
 	case ProjectCardEventCreatedAction:
-		err := g.handleProjectCardEventCreated(deliveryID, eventName, event)
+		err := g.handleProjectCardEventCreated(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case ProjectCardEventEditedAction:
-		err := g.handleProjectCardEventEdited(deliveryID, eventName, event)
+		err := g.handleProjectCardEventEdited(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case ProjectCardEventConvertedAction:
-		err := g.handleProjectCardEventConverted(deliveryID, eventName, event)
+		err := g.handleProjectCardEventConverted(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case ProjectCardEventMovedAction:
-		err := g.handleProjectCardEventMoved(deliveryID, eventName, event)
+		err := g.handleProjectCardEventMoved(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case ProjectCardEventDeletedAction:
-		err := g.handleProjectCardEventDeleted(deliveryID, eventName, event)
+		err := g.handleProjectCardEventDeleted(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	default:
-		err := g.handleProjectCardEventAny(deliveryID, eventName, event)
+		err := g.handleProjectCardEventAny(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 	}
 
-	err = g.handleAfterAny(deliveryID, eventName, event)
+	err = g.handleAfterAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}

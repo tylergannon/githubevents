@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnGollumEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnGollumEventAny(t *testing.T) {
 			name: "must add single GollumEventHandleFunc",
 			args: args{
 				[]GollumEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GollumEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnGollumEventAny(t *testing.T) {
 			name: "must add multiple GollumEventHandleFuncs",
 			args: args{
 				[]GollumEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GollumEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.GollumEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnGollumEventAny(t *testing.T) {
 			name: "must add single GollumEventHandleFunc",
 			args: args{
 				[]GollumEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GollumEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnGollumEventAny(t *testing.T) {
 			name: "must add multiple GollumEventHandleFuncs",
 			args: args{
 				[]GollumEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GollumEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.GollumEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnGollumEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnGollumEventAny(func(deliveryID string, eventName string, event *github.GollumEvent) error {
+			g.SetOnGollumEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 				return nil
 			})
 			g.SetOnGollumEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnGollumEventAny(t *testing.T) {
 }
 
 func TestHandleGollumEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	type args struct {
 		deliveryID string
@@ -158,13 +161,13 @@ func TestHandleGollumEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnGollumEventAny(func(deliveryID string, eventName string, event *github.GollumEvent) error {
+			g.OnGollumEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleGollumEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleGollumEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleGollumEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -172,6 +175,7 @@ func TestHandleGollumEventAny(t *testing.T) {
 }
 
 func TestGollumEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -193,7 +197,7 @@ func TestGollumEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -201,7 +205,7 @@ func TestGollumEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -209,7 +213,7 @@ func TestGollumEvent(t *testing.T) {
 					},
 					onGollumEvent: map[string][]GollumEventHandleFunc{
 						GollumEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.GollumEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -232,7 +236,7 @@ func TestGollumEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.GollumEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.GollumEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("GollumEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

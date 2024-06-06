@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnMilestoneEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnMilestoneEventAny(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnMilestoneEventAny(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFuncs",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnMilestoneEventAny(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnMilestoneEventAny(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFuncs",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnMilestoneEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnMilestoneEventAny(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.SetOnMilestoneEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				return nil
 			})
 			g.SetOnMilestoneEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnMilestoneEventAny(t *testing.T) {
 }
 
 func TestHandleMilestoneEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleMilestoneEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnMilestoneEventAny(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.OnMilestoneEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleMilestoneEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleMilestoneEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleMilestoneEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnMilestoneEventCreated(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				callbacks: []MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnMilestoneEventCreated(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFunc",
 			args: args{
 				callbacks: []MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnMilestoneEventCreated(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnMilestoneEventCreated(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFuncs",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnMilestoneEventCreated(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnMilestoneEventCreated(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.SetOnMilestoneEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				return nil
 			})
 			g.SetOnMilestoneEventCreated(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnMilestoneEventCreated(t *testing.T) {
 }
 
 func TestHandleMilestoneEventCreated(t *testing.T) {
+	ctx := context.Background()
 	action := MilestoneEventCreatedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleMilestoneEventCreated(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnMilestoneEventCreated(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.OnMilestoneEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleMilestoneEventCreated(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleMilestoneEventCreated(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleMilestoneEventCreated() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnMilestoneEventClosed(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				callbacks: []MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnMilestoneEventClosed(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFunc",
 			args: args{
 				callbacks: []MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnMilestoneEventClosed(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnMilestoneEventClosed(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFuncs",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnMilestoneEventClosed(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnMilestoneEventClosed(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.SetOnMilestoneEventClosed(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				return nil
 			})
 			g.SetOnMilestoneEventClosed(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnMilestoneEventClosed(t *testing.T) {
 }
 
 func TestHandleMilestoneEventClosed(t *testing.T) {
+	ctx := context.Background()
 	action := MilestoneEventClosedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandleMilestoneEventClosed(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnMilestoneEventClosed(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.OnMilestoneEventClosed(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleMilestoneEventClosed(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleMilestoneEventClosed(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleMilestoneEventClosed() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -559,7 +564,7 @@ func TestOnMilestoneEventOpened(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				callbacks: []MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -569,10 +574,10 @@ func TestOnMilestoneEventOpened(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFunc",
 			args: args{
 				callbacks: []MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -603,7 +608,7 @@ func TestSetOnMilestoneEventOpened(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -614,10 +619,10 @@ func TestSetOnMilestoneEventOpened(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFuncs",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -629,7 +634,7 @@ func TestSetOnMilestoneEventOpened(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnMilestoneEventOpened(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.SetOnMilestoneEventOpened(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				return nil
 			})
 			g.SetOnMilestoneEventOpened(tt.args.callbacks...)
@@ -641,6 +646,7 @@ func TestSetOnMilestoneEventOpened(t *testing.T) {
 }
 
 func TestHandleMilestoneEventOpened(t *testing.T) {
+	ctx := context.Background()
 	action := MilestoneEventOpenedAction
 
 	emptyAction := ""
@@ -721,13 +727,13 @@ func TestHandleMilestoneEventOpened(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnMilestoneEventOpened(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.OnMilestoneEventOpened(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleMilestoneEventOpened(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleMilestoneEventOpened(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleMilestoneEventOpened() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -746,7 +752,7 @@ func TestOnMilestoneEventEdited(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				callbacks: []MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -756,10 +762,10 @@ func TestOnMilestoneEventEdited(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFunc",
 			args: args{
 				callbacks: []MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -790,7 +796,7 @@ func TestSetOnMilestoneEventEdited(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -801,10 +807,10 @@ func TestSetOnMilestoneEventEdited(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFuncs",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -816,7 +822,7 @@ func TestSetOnMilestoneEventEdited(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnMilestoneEventEdited(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.SetOnMilestoneEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				return nil
 			})
 			g.SetOnMilestoneEventEdited(tt.args.callbacks...)
@@ -828,6 +834,7 @@ func TestSetOnMilestoneEventEdited(t *testing.T) {
 }
 
 func TestHandleMilestoneEventEdited(t *testing.T) {
+	ctx := context.Background()
 	action := MilestoneEventEditedAction
 
 	emptyAction := ""
@@ -908,13 +915,13 @@ func TestHandleMilestoneEventEdited(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnMilestoneEventEdited(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.OnMilestoneEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleMilestoneEventEdited(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleMilestoneEventEdited(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleMilestoneEventEdited() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -933,7 +940,7 @@ func TestOnMilestoneEventDeleted(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				callbacks: []MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -943,10 +950,10 @@ func TestOnMilestoneEventDeleted(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFunc",
 			args: args{
 				callbacks: []MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -977,7 +984,7 @@ func TestSetOnMilestoneEventDeleted(t *testing.T) {
 			name: "must add single MilestoneEventHandleFunc",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -988,10 +995,10 @@ func TestSetOnMilestoneEventDeleted(t *testing.T) {
 			name: "must add multiple MilestoneEventHandleFuncs",
 			args: args{
 				[]MilestoneEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 						return nil
 					},
 				},
@@ -1003,7 +1010,7 @@ func TestSetOnMilestoneEventDeleted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnMilestoneEventDeleted(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.SetOnMilestoneEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				return nil
 			})
 			g.SetOnMilestoneEventDeleted(tt.args.callbacks...)
@@ -1015,6 +1022,7 @@ func TestSetOnMilestoneEventDeleted(t *testing.T) {
 }
 
 func TestHandleMilestoneEventDeleted(t *testing.T) {
+	ctx := context.Background()
 	action := MilestoneEventDeletedAction
 
 	emptyAction := ""
@@ -1095,13 +1103,13 @@ func TestHandleMilestoneEventDeleted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnMilestoneEventDeleted(func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+			g.OnMilestoneEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleMilestoneEventDeleted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleMilestoneEventDeleted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleMilestoneEventDeleted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1109,6 +1117,7 @@ func TestHandleMilestoneEventDeleted(t *testing.T) {
 }
 
 func TestMilestoneEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -1130,7 +1139,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1138,7 +1147,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1146,7 +1155,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -1170,7 +1179,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1178,7 +1187,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1186,13 +1195,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventCreatedAction)
 								return nil
 							},
@@ -1214,7 +1223,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1222,7 +1231,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1230,13 +1239,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventCreatedAction)
 								return nil
 							},
@@ -1258,7 +1267,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1266,7 +1275,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1274,13 +1283,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventCreatedAction)
 								return nil
 							},
@@ -1303,7 +1312,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1311,7 +1320,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1319,13 +1328,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventClosedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventClosedAction)
 								return nil
 							},
@@ -1347,7 +1356,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1355,7 +1364,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1363,13 +1372,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventClosedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventClosedAction)
 								return nil
 							},
@@ -1391,7 +1400,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1399,7 +1408,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1407,13 +1416,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventClosedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventClosedAction)
 								return nil
 							},
@@ -1436,7 +1445,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1444,7 +1453,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1452,13 +1461,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventOpenedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventOpenedAction)
 								return nil
 							},
@@ -1480,7 +1489,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1488,7 +1497,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1496,13 +1505,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventOpenedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventOpenedAction)
 								return nil
 							},
@@ -1524,7 +1533,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1532,7 +1541,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1540,13 +1549,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventOpenedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventOpenedAction)
 								return nil
 							},
@@ -1569,7 +1578,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1577,7 +1586,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1585,13 +1594,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventEditedAction)
 								return nil
 							},
@@ -1613,7 +1622,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1621,7 +1630,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1629,13 +1638,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventEditedAction)
 								return nil
 							},
@@ -1657,7 +1666,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1665,7 +1674,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1673,13 +1682,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventEditedAction)
 								return nil
 							},
@@ -1702,7 +1711,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1710,7 +1719,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1718,13 +1727,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventDeletedAction)
 								return nil
 							},
@@ -1746,7 +1755,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1754,7 +1763,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1762,13 +1771,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventDeletedAction)
 								return nil
 							},
@@ -1790,7 +1799,7 @@ func TestMilestoneEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1798,7 +1807,7 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1806,13 +1815,13 @@ func TestMilestoneEvent(t *testing.T) {
 					},
 					onMilestoneEvent: map[string][]MilestoneEventHandleFunc{
 						MilestoneEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MilestoneEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.MilestoneEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MilestoneEvent) error {
 								t.Logf("%s action called", MilestoneEventDeletedAction)
 								return nil
 							},
@@ -1834,7 +1843,7 @@ func TestMilestoneEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.MilestoneEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.MilestoneEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("MilestoneEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

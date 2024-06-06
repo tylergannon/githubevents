@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnRepositoryEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnRepositoryEventAny(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnRepositoryEventAny(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnRepositoryEventAny(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnRepositoryEventAny(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnRepositoryEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryEventAny(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.SetOnRepositoryEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnRepositoryEventAny(t *testing.T) {
 }
 
 func TestHandleRepositoryEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleRepositoryEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryEventAny(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.OnRepositoryEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleRepositoryEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnRepositoryEventCreated(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnRepositoryEventCreated(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnRepositoryEventCreated(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnRepositoryEventCreated(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnRepositoryEventCreated(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryEventCreated(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.SetOnRepositoryEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryEventCreated(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnRepositoryEventCreated(t *testing.T) {
 }
 
 func TestHandleRepositoryEventCreated(t *testing.T) {
+	ctx := context.Background()
 	action := RepositoryEventCreatedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleRepositoryEventCreated(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryEventCreated(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.OnRepositoryEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryEventCreated(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryEventCreated(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleRepositoryEventCreated() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnRepositoryEventDeleted(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnRepositoryEventDeleted(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnRepositoryEventDeleted(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnRepositoryEventDeleted(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnRepositoryEventDeleted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryEventDeleted(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.SetOnRepositoryEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryEventDeleted(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnRepositoryEventDeleted(t *testing.T) {
 }
 
 func TestHandleRepositoryEventDeleted(t *testing.T) {
+	ctx := context.Background()
 	action := RepositoryEventDeletedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandleRepositoryEventDeleted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryEventDeleted(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.OnRepositoryEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryEventDeleted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryEventDeleted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleRepositoryEventDeleted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -559,7 +564,7 @@ func TestOnRepositoryEventArchived(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -569,10 +574,10 @@ func TestOnRepositoryEventArchived(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -603,7 +608,7 @@ func TestSetOnRepositoryEventArchived(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -614,10 +619,10 @@ func TestSetOnRepositoryEventArchived(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -629,7 +634,7 @@ func TestSetOnRepositoryEventArchived(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryEventArchived(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.SetOnRepositoryEventArchived(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryEventArchived(tt.args.callbacks...)
@@ -641,6 +646,7 @@ func TestSetOnRepositoryEventArchived(t *testing.T) {
 }
 
 func TestHandleRepositoryEventArchived(t *testing.T) {
+	ctx := context.Background()
 	action := RepositoryEventArchivedAction
 
 	emptyAction := ""
@@ -721,13 +727,13 @@ func TestHandleRepositoryEventArchived(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryEventArchived(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.OnRepositoryEventArchived(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryEventArchived(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryEventArchived(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleRepositoryEventArchived() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -746,7 +752,7 @@ func TestOnRepositoryEventUnarchived(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -756,10 +762,10 @@ func TestOnRepositoryEventUnarchived(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -790,7 +796,7 @@ func TestSetOnRepositoryEventUnarchived(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -801,10 +807,10 @@ func TestSetOnRepositoryEventUnarchived(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -816,7 +822,7 @@ func TestSetOnRepositoryEventUnarchived(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryEventUnarchived(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.SetOnRepositoryEventUnarchived(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryEventUnarchived(tt.args.callbacks...)
@@ -828,6 +834,7 @@ func TestSetOnRepositoryEventUnarchived(t *testing.T) {
 }
 
 func TestHandleRepositoryEventUnarchived(t *testing.T) {
+	ctx := context.Background()
 	action := RepositoryEventUnarchivedAction
 
 	emptyAction := ""
@@ -908,13 +915,13 @@ func TestHandleRepositoryEventUnarchived(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryEventUnarchived(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.OnRepositoryEventUnarchived(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryEventUnarchived(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryEventUnarchived(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleRepositoryEventUnarchived() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -933,7 +940,7 @@ func TestOnRepositoryEventEdited(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -943,10 +950,10 @@ func TestOnRepositoryEventEdited(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -977,7 +984,7 @@ func TestSetOnRepositoryEventEdited(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -988,10 +995,10 @@ func TestSetOnRepositoryEventEdited(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1003,7 +1010,7 @@ func TestSetOnRepositoryEventEdited(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryEventEdited(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.SetOnRepositoryEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryEventEdited(tt.args.callbacks...)
@@ -1015,6 +1022,7 @@ func TestSetOnRepositoryEventEdited(t *testing.T) {
 }
 
 func TestHandleRepositoryEventEdited(t *testing.T) {
+	ctx := context.Background()
 	action := RepositoryEventEditedAction
 
 	emptyAction := ""
@@ -1095,13 +1103,13 @@ func TestHandleRepositoryEventEdited(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryEventEdited(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.OnRepositoryEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryEventEdited(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryEventEdited(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleRepositoryEventEdited() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1120,7 +1128,7 @@ func TestOnRepositoryEventRenamed(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1130,10 +1138,10 @@ func TestOnRepositoryEventRenamed(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1164,7 +1172,7 @@ func TestSetOnRepositoryEventRenamed(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1175,10 +1183,10 @@ func TestSetOnRepositoryEventRenamed(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1190,7 +1198,7 @@ func TestSetOnRepositoryEventRenamed(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryEventRenamed(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.SetOnRepositoryEventRenamed(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryEventRenamed(tt.args.callbacks...)
@@ -1202,6 +1210,7 @@ func TestSetOnRepositoryEventRenamed(t *testing.T) {
 }
 
 func TestHandleRepositoryEventRenamed(t *testing.T) {
+	ctx := context.Background()
 	action := RepositoryEventRenamedAction
 
 	emptyAction := ""
@@ -1282,13 +1291,13 @@ func TestHandleRepositoryEventRenamed(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryEventRenamed(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.OnRepositoryEventRenamed(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryEventRenamed(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryEventRenamed(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleRepositoryEventRenamed() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1307,7 +1316,7 @@ func TestOnRepositoryEventTransferred(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1317,10 +1326,10 @@ func TestOnRepositoryEventTransferred(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1351,7 +1360,7 @@ func TestSetOnRepositoryEventTransferred(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1362,10 +1371,10 @@ func TestSetOnRepositoryEventTransferred(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1377,7 +1386,7 @@ func TestSetOnRepositoryEventTransferred(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryEventTransferred(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.SetOnRepositoryEventTransferred(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryEventTransferred(tt.args.callbacks...)
@@ -1389,6 +1398,7 @@ func TestSetOnRepositoryEventTransferred(t *testing.T) {
 }
 
 func TestHandleRepositoryEventTransferred(t *testing.T) {
+	ctx := context.Background()
 	action := RepositoryEventTransferredAction
 
 	emptyAction := ""
@@ -1469,13 +1479,13 @@ func TestHandleRepositoryEventTransferred(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryEventTransferred(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.OnRepositoryEventTransferred(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryEventTransferred(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryEventTransferred(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleRepositoryEventTransferred() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1494,7 +1504,7 @@ func TestOnRepositoryEventPublicized(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1504,10 +1514,10 @@ func TestOnRepositoryEventPublicized(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1538,7 +1548,7 @@ func TestSetOnRepositoryEventPublicized(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1549,10 +1559,10 @@ func TestSetOnRepositoryEventPublicized(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1564,7 +1574,7 @@ func TestSetOnRepositoryEventPublicized(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryEventPublicized(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.SetOnRepositoryEventPublicized(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryEventPublicized(tt.args.callbacks...)
@@ -1576,6 +1586,7 @@ func TestSetOnRepositoryEventPublicized(t *testing.T) {
 }
 
 func TestHandleRepositoryEventPublicized(t *testing.T) {
+	ctx := context.Background()
 	action := RepositoryEventPublicizedAction
 
 	emptyAction := ""
@@ -1656,13 +1667,13 @@ func TestHandleRepositoryEventPublicized(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryEventPublicized(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.OnRepositoryEventPublicized(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryEventPublicized(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryEventPublicized(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleRepositoryEventPublicized() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1681,7 +1692,7 @@ func TestOnRepositoryEventPrivatized(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1691,10 +1702,10 @@ func TestOnRepositoryEventPrivatized(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFunc",
 			args: args{
 				callbacks: []RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1725,7 +1736,7 @@ func TestSetOnRepositoryEventPrivatized(t *testing.T) {
 			name: "must add single RepositoryEventHandleFunc",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1736,10 +1747,10 @@ func TestSetOnRepositoryEventPrivatized(t *testing.T) {
 			name: "must add multiple RepositoryEventHandleFuncs",
 			args: args{
 				[]RepositoryEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 						return nil
 					},
 				},
@@ -1751,7 +1762,7 @@ func TestSetOnRepositoryEventPrivatized(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnRepositoryEventPrivatized(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.SetOnRepositoryEventPrivatized(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				return nil
 			})
 			g.SetOnRepositoryEventPrivatized(tt.args.callbacks...)
@@ -1763,6 +1774,7 @@ func TestSetOnRepositoryEventPrivatized(t *testing.T) {
 }
 
 func TestHandleRepositoryEventPrivatized(t *testing.T) {
+	ctx := context.Background()
 	action := RepositoryEventPrivatizedAction
 
 	emptyAction := ""
@@ -1843,13 +1855,13 @@ func TestHandleRepositoryEventPrivatized(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnRepositoryEventPrivatized(func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+			g.OnRepositoryEventPrivatized(func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleRepositoryEventPrivatized(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleRepositoryEventPrivatized(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleRepositoryEventPrivatized() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1857,6 +1869,7 @@ func TestHandleRepositoryEventPrivatized(t *testing.T) {
 }
 
 func TestRepositoryEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -1878,7 +1891,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1886,7 +1899,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1894,7 +1907,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -1918,7 +1931,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1926,7 +1939,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1934,13 +1947,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventCreatedAction)
 								return nil
 							},
@@ -1962,7 +1975,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1970,7 +1983,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1978,13 +1991,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventCreatedAction)
 								return nil
 							},
@@ -2006,7 +2019,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2014,7 +2027,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2022,13 +2035,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventCreatedAction)
 								return nil
 							},
@@ -2051,7 +2064,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2059,7 +2072,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2067,13 +2080,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventDeletedAction)
 								return nil
 							},
@@ -2095,7 +2108,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2103,7 +2116,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2111,13 +2124,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventDeletedAction)
 								return nil
 							},
@@ -2139,7 +2152,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2147,7 +2160,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2155,13 +2168,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventDeletedAction)
 								return nil
 							},
@@ -2184,7 +2197,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2192,7 +2205,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2200,13 +2213,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventArchivedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventArchivedAction)
 								return nil
 							},
@@ -2228,7 +2241,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2236,7 +2249,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2244,13 +2257,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventArchivedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventArchivedAction)
 								return nil
 							},
@@ -2272,7 +2285,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2280,7 +2293,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2288,13 +2301,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventArchivedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventArchivedAction)
 								return nil
 							},
@@ -2317,7 +2330,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2325,7 +2338,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2333,13 +2346,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventUnarchivedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventUnarchivedAction)
 								return nil
 							},
@@ -2361,7 +2374,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2369,7 +2382,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2377,13 +2390,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventUnarchivedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventUnarchivedAction)
 								return nil
 							},
@@ -2405,7 +2418,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2413,7 +2426,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2421,13 +2434,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventUnarchivedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventUnarchivedAction)
 								return nil
 							},
@@ -2450,7 +2463,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2458,7 +2471,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2466,13 +2479,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventEditedAction)
 								return nil
 							},
@@ -2494,7 +2507,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2502,7 +2515,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2510,13 +2523,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventEditedAction)
 								return nil
 							},
@@ -2538,7 +2551,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2546,7 +2559,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2554,13 +2567,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventEditedAction)
 								return nil
 							},
@@ -2583,7 +2596,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2591,7 +2604,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2599,13 +2612,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventRenamedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventRenamedAction)
 								return nil
 							},
@@ -2627,7 +2640,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2635,7 +2648,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2643,13 +2656,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventRenamedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventRenamedAction)
 								return nil
 							},
@@ -2671,7 +2684,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2679,7 +2692,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2687,13 +2700,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventRenamedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventRenamedAction)
 								return nil
 							},
@@ -2716,7 +2729,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2724,7 +2737,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2732,13 +2745,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventTransferredAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventTransferredAction)
 								return nil
 							},
@@ -2760,7 +2773,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2768,7 +2781,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2776,13 +2789,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventTransferredAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventTransferredAction)
 								return nil
 							},
@@ -2804,7 +2817,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2812,7 +2825,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2820,13 +2833,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventTransferredAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventTransferredAction)
 								return nil
 							},
@@ -2849,7 +2862,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2857,7 +2870,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2865,13 +2878,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventPublicizedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventPublicizedAction)
 								return nil
 							},
@@ -2893,7 +2906,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2901,7 +2914,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2909,13 +2922,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventPublicizedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventPublicizedAction)
 								return nil
 							},
@@ -2937,7 +2950,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2945,7 +2958,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2953,13 +2966,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventPublicizedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventPublicizedAction)
 								return nil
 							},
@@ -2982,7 +2995,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -2990,7 +3003,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -2998,13 +3011,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventPrivatizedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventPrivatizedAction)
 								return nil
 							},
@@ -3026,7 +3039,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -3034,7 +3047,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -3042,13 +3055,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventPrivatizedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventPrivatizedAction)
 								return nil
 							},
@@ -3070,7 +3083,7 @@ func TestRepositoryEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -3078,7 +3091,7 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -3086,13 +3099,13 @@ func TestRepositoryEvent(t *testing.T) {
 					},
 					onRepositoryEvent: map[string][]RepositoryEventHandleFunc{
 						RepositoryEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						RepositoryEventPrivatizedAction: {
-							func(deliveryID string, eventName string, event *github.RepositoryEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.RepositoryEvent) error {
 								t.Logf("%s action called", RepositoryEventPrivatizedAction)
 								return nil
 							},
@@ -3114,7 +3127,7 @@ func TestRepositoryEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.RepositoryEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.RepositoryEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("RepositoryEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

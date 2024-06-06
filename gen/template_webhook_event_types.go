@@ -11,7 +11,9 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/google/go-github/v62/github"
 	"golang.org/x/sync/errgroup"
 )
@@ -37,7 +39,7 @@ const (
 // 'deliveryID' (type: string) is the unique webhook delivery ID.
 // 'eventName' (type: string) is the name of the event.
 // 'event' (type: *github.{{ $webhook.Event }}) is the webhook payload.
-type {{ $webhook.Event }}HandleFunc func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error
+type {{ $webhook.Event }}HandleFunc func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error
 
 {{ range $_, $action := $webhook.Actions }}
 
@@ -87,7 +89,7 @@ func (g *EventHandler) SetOn{{ $action.Handler }}(callbacks ...{{ $webhook.Event
 	g.on{{ $webhook.Event }}[{{ $action.Handler }}Action] = callbacks
 }
 
-func (g *EventHandler) handle{{ $action.Handler }}(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+func (g *EventHandler) handle{{ $action.Handler }}(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -107,7 +109,7 @@ func (g *EventHandler) handle{{ $action.Handler }}(deliveryID string, eventName 
 			for _, h := range g.on{{ $webhook.Event }}[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -170,7 +172,7 @@ func (g *EventHandler) SetOn{{ $webhook.Event }}Any(callbacks ...{{ $webhook.Eve
 	g.on{{ $webhook.Event }}[{{ $webhook.Event }}AnyAction] = callbacks
 }
 
-func (g *EventHandler) handle{{ $webhook.Event }}Any(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+func (g *EventHandler) handle{{ $webhook.Event }}Any(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -181,7 +183,7 @@ func (g *EventHandler) handle{{ $webhook.Event }}Any(deliveryID string, eventNam
 	for _, h := range g.on{{ $webhook.Event }}[{{ $webhook.Event }}AnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -203,7 +205,7 @@ func (g *EventHandler) handle{{ $webhook.Event }}Any(deliveryID string, eventNam
 // 3) All callbacks registered with OnAfterAny are executed in parallel.
 //
 // on any error all callbacks registered with OnError are executed in parallel.
-func (g *EventHandler) {{ $webhook.Event }}(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+func (g *EventHandler) {{ $webhook.Event }}(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 	{{ if $webhook.HasActions }}
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
@@ -215,7 +217,7 @@ func (g *EventHandler) {{ $webhook.Event }}(deliveryID string, eventName string,
 	}
 	{{ end }}
 
-	err := g.handleBeforeAny(deliveryID, eventName, event)
+	err := g.handleBeforeAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
@@ -225,27 +227,27 @@ func (g *EventHandler) {{ $webhook.Event }}(deliveryID string, eventName string,
 	switch action {
 	{{ range $_, $action := $webhook.Actions }}
 	case {{ $action.Handler }}Action:
-		err := g.handle{{ $action.Handler }}(deliveryID, eventName, event)
+		err := g.handle{{ $action.Handler }}(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 	{{ end }}
 	default:
-		err := g.handle{{ $webhook.Event }}Any(deliveryID, eventName, event)
+		err := g.handle{{ $webhook.Event }}Any(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 	}
 	{{ else }}
 
-	err = g.handle{{ $webhook.Event }}Any(deliveryID, eventName, event)
+	err = g.handle{{ $webhook.Event }}Any(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
 
 	{{ end }}
 
-	err = g.handleAfterAny(deliveryID, eventName, event)
+	err = g.handleAfterAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}

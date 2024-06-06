@@ -8,11 +8,13 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"fmt"
-	"github.com/google/go-github/v62/github"
-	"golang.org/x/sync/errgroup"
 	"net/http"
 	"sync"
+
+	"github.com/google/go-github/v62/github"
+	"golang.org/x/sync/errgroup"
 )
 
 // Actions are used to identify registered callbacks.
@@ -99,7 +101,7 @@ func New(webhookSecret string) *EventHandler {
 }
 
 // EventHandleFunc represents a generic callback function which receives any event.
-type EventHandleFunc func(deliveryID string, eventName string, event interface{}) error
+type EventHandleFunc func(ctx context.Context, deliveryID string, eventName string, event interface{}) error
 
 // OnBeforeAny registers callbacks which are triggered before any event.
 //
@@ -136,7 +138,7 @@ func (g *EventHandler) SetOnBeforeAny(callbacks ...EventHandleFunc) {
 	g.onBeforeAny[EventAnyAction] = callbacks
 }
 
-func (g *EventHandler) handleBeforeAny(deliveryID string, eventName string, event interface{}) error {
+func (g *EventHandler) handleBeforeAny(ctx context.Context, deliveryID string, eventName string, event interface{}) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -147,7 +149,7 @@ func (g *EventHandler) handleBeforeAny(deliveryID string, eventName string, even
 	for _, h := range g.onBeforeAny[EventAnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -195,7 +197,7 @@ func (g *EventHandler) SetOnAfterAny(callbacks ...EventHandleFunc) {
 	g.onAfterAny[EventAnyAction] = callbacks
 }
 
-func (g *EventHandler) handleAfterAny(deliveryID string, eventName string, event interface{}) error {
+func (g *EventHandler) handleAfterAny(ctx context.Context, deliveryID string, eventName string, event interface{}) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -206,7 +208,7 @@ func (g *EventHandler) handleAfterAny(deliveryID string, eventName string, event
 	for _, h := range g.onAfterAny[EventAnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -286,166 +288,169 @@ func (g *EventHandler) handleError(deliveryID string, eventName string, event in
 func (g *EventHandler) HandleEventRequest(req *http.Request) error {
 	payload, err := github.ValidatePayload(req, []byte(g.WebhookSecret))
 	if err != nil {
-		fmt.Errorf("could not validate webhook payload: err=%s\n", err)
-		return err
+		return fmt.Errorf("payload validation fail: %w", err)
 	}
 	event, err := github.ParseWebHook(github.WebHookType(req), payload)
 	if err != nil {
-		fmt.Errorf("could not parse webhook: err=%s\n", err)
-		return err
+		return fmt.Errorf("could not parse webhook: %w", err)
 	}
 
 	deliveryID := github.DeliveryID(req)
 	eventName := github.WebHookType(req)
 
+	return g.HandleParsedEvent(req.Context(), deliveryID, eventName, event)
+}
+
+// HandleParsedEvent takes the parsed/validated event and the request context, executes registered handlers and returns an error.
+func (g *EventHandler) HandleParsedEvent(ctx context.Context, deliveryID string, eventName string, event interface{}) error {
 	switch event := event.(type) {
 
 	case *github.BranchProtectionRuleEvent:
-		return g.BranchProtectionRuleEvent(deliveryID, eventName, event)
+		return g.BranchProtectionRuleEvent(ctx, deliveryID, eventName, event)
 
 	case *github.CheckRunEvent:
-		return g.CheckRunEvent(deliveryID, eventName, event)
+		return g.CheckRunEvent(ctx, deliveryID, eventName, event)
 
 	case *github.CheckSuiteEvent:
-		return g.CheckSuiteEvent(deliveryID, eventName, event)
+		return g.CheckSuiteEvent(ctx, deliveryID, eventName, event)
 
 	case *github.CommitCommentEvent:
-		return g.CommitCommentEvent(deliveryID, eventName, event)
+		return g.CommitCommentEvent(ctx, deliveryID, eventName, event)
 
 	case *github.CreateEvent:
-		return g.CreateEvent(deliveryID, eventName, event)
+		return g.CreateEvent(ctx, deliveryID, eventName, event)
 
 	case *github.DeleteEvent:
-		return g.DeleteEvent(deliveryID, eventName, event)
+		return g.DeleteEvent(ctx, deliveryID, eventName, event)
 
 	case *github.DeployKeyEvent:
-		return g.DeployKeyEvent(deliveryID, eventName, event)
+		return g.DeployKeyEvent(ctx, deliveryID, eventName, event)
 
 	case *github.DeploymentEvent:
-		return g.DeploymentEvent(deliveryID, eventName, event)
+		return g.DeploymentEvent(ctx, deliveryID, eventName, event)
 
 	case *github.DeploymentStatusEvent:
-		return g.DeploymentStatusEvent(deliveryID, eventName, event)
+		return g.DeploymentStatusEvent(ctx, deliveryID, eventName, event)
 
 	case *github.DiscussionEvent:
-		return g.DiscussionEvent(deliveryID, eventName, event)
+		return g.DiscussionEvent(ctx, deliveryID, eventName, event)
 
 	case *github.ForkEvent:
-		return g.ForkEvent(deliveryID, eventName, event)
+		return g.ForkEvent(ctx, deliveryID, eventName, event)
 
 	case *github.GitHubAppAuthorizationEvent:
-		return g.GitHubAppAuthorizationEvent(deliveryID, eventName, event)
+		return g.GitHubAppAuthorizationEvent(ctx, deliveryID, eventName, event)
 
 	case *github.GollumEvent:
-		return g.GollumEvent(deliveryID, eventName, event)
+		return g.GollumEvent(ctx, deliveryID, eventName, event)
 
 	case *github.InstallationEvent:
-		return g.InstallationEvent(deliveryID, eventName, event)
+		return g.InstallationEvent(ctx, deliveryID, eventName, event)
 
 	case *github.InstallationRepositoriesEvent:
-		return g.InstallationRepositoriesEvent(deliveryID, eventName, event)
+		return g.InstallationRepositoriesEvent(ctx, deliveryID, eventName, event)
 
 	case *github.IssueCommentEvent:
-		return g.IssueCommentEvent(deliveryID, eventName, event)
+		return g.IssueCommentEvent(ctx, deliveryID, eventName, event)
 
 	case *github.IssuesEvent:
-		return g.IssuesEvent(deliveryID, eventName, event)
+		return g.IssuesEvent(ctx, deliveryID, eventName, event)
 
 	case *github.LabelEvent:
-		return g.LabelEvent(deliveryID, eventName, event)
+		return g.LabelEvent(ctx, deliveryID, eventName, event)
 
 	case *github.MarketplacePurchaseEvent:
-		return g.MarketplacePurchaseEvent(deliveryID, eventName, event)
+		return g.MarketplacePurchaseEvent(ctx, deliveryID, eventName, event)
 
 	case *github.MemberEvent:
-		return g.MemberEvent(deliveryID, eventName, event)
+		return g.MemberEvent(ctx, deliveryID, eventName, event)
 
 	case *github.MembershipEvent:
-		return g.MembershipEvent(deliveryID, eventName, event)
+		return g.MembershipEvent(ctx, deliveryID, eventName, event)
 
 	case *github.MergeGroupEvent:
-		return g.MergeGroupEvent(deliveryID, eventName, event)
+		return g.MergeGroupEvent(ctx, deliveryID, eventName, event)
 
 	case *github.MetaEvent:
-		return g.MetaEvent(deliveryID, eventName, event)
+		return g.MetaEvent(ctx, deliveryID, eventName, event)
 
 	case *github.MilestoneEvent:
-		return g.MilestoneEvent(deliveryID, eventName, event)
+		return g.MilestoneEvent(ctx, deliveryID, eventName, event)
 
 	case *github.OrganizationEvent:
-		return g.OrganizationEvent(deliveryID, eventName, event)
+		return g.OrganizationEvent(ctx, deliveryID, eventName, event)
 
 	case *github.OrgBlockEvent:
-		return g.OrgBlockEvent(deliveryID, eventName, event)
+		return g.OrgBlockEvent(ctx, deliveryID, eventName, event)
 
 	case *github.PackageEvent:
-		return g.PackageEvent(deliveryID, eventName, event)
+		return g.PackageEvent(ctx, deliveryID, eventName, event)
 
 	case *github.PageBuildEvent:
-		return g.PageBuildEvent(deliveryID, eventName, event)
+		return g.PageBuildEvent(ctx, deliveryID, eventName, event)
 
 	case *github.PingEvent:
-		return g.PingEvent(deliveryID, eventName, event)
+		return g.PingEvent(ctx, deliveryID, eventName, event)
 
 	case *github.ProjectEvent:
-		return g.ProjectEvent(deliveryID, eventName, event)
+		return g.ProjectEvent(ctx, deliveryID, eventName, event)
 
 	case *github.ProjectCardEvent:
-		return g.ProjectCardEvent(deliveryID, eventName, event)
+		return g.ProjectCardEvent(ctx, deliveryID, eventName, event)
 
 	case *github.ProjectColumnEvent:
-		return g.ProjectColumnEvent(deliveryID, eventName, event)
+		return g.ProjectColumnEvent(ctx, deliveryID, eventName, event)
 
 	case *github.PublicEvent:
-		return g.PublicEvent(deliveryID, eventName, event)
+		return g.PublicEvent(ctx, deliveryID, eventName, event)
 
 	case *github.PullRequestEvent:
-		return g.PullRequestEvent(deliveryID, eventName, event)
+		return g.PullRequestEvent(ctx, deliveryID, eventName, event)
 
 	case *github.PullRequestReviewEvent:
-		return g.PullRequestReviewEvent(deliveryID, eventName, event)
+		return g.PullRequestReviewEvent(ctx, deliveryID, eventName, event)
 
 	case *github.PullRequestReviewCommentEvent:
-		return g.PullRequestReviewCommentEvent(deliveryID, eventName, event)
+		return g.PullRequestReviewCommentEvent(ctx, deliveryID, eventName, event)
 
 	case *github.PushEvent:
-		return g.PushEvent(deliveryID, eventName, event)
+		return g.PushEvent(ctx, deliveryID, eventName, event)
 
 	case *github.ReleaseEvent:
-		return g.ReleaseEvent(deliveryID, eventName, event)
+		return g.ReleaseEvent(ctx, deliveryID, eventName, event)
 
 	case *github.RepositoryDispatchEvent:
-		return g.RepositoryDispatchEvent(deliveryID, eventName, event)
+		return g.RepositoryDispatchEvent(ctx, deliveryID, eventName, event)
 
 	case *github.RepositoryEvent:
-		return g.RepositoryEvent(deliveryID, eventName, event)
+		return g.RepositoryEvent(ctx, deliveryID, eventName, event)
 
 	case *github.RepositoryVulnerabilityAlertEvent:
-		return g.RepositoryVulnerabilityAlertEvent(deliveryID, eventName, event)
+		return g.RepositoryVulnerabilityAlertEvent(ctx, deliveryID, eventName, event)
 
 	case *github.StarEvent:
-		return g.StarEvent(deliveryID, eventName, event)
+		return g.StarEvent(ctx, deliveryID, eventName, event)
 
 	case *github.StatusEvent:
-		return g.StatusEvent(deliveryID, eventName, event)
+		return g.StatusEvent(ctx, deliveryID, eventName, event)
 
 	case *github.TeamEvent:
-		return g.TeamEvent(deliveryID, eventName, event)
+		return g.TeamEvent(ctx, deliveryID, eventName, event)
 
 	case *github.TeamAddEvent:
-		return g.TeamAddEvent(deliveryID, eventName, event)
+		return g.TeamAddEvent(ctx, deliveryID, eventName, event)
 
 	case *github.WatchEvent:
-		return g.WatchEvent(deliveryID, eventName, event)
+		return g.WatchEvent(ctx, deliveryID, eventName, event)
 
 	case *github.WorkflowJobEvent:
-		return g.WorkflowJobEvent(deliveryID, eventName, event)
+		return g.WorkflowJobEvent(ctx, deliveryID, eventName, event)
 
 	case *github.WorkflowDispatchEvent:
-		return g.WorkflowDispatchEvent(deliveryID, eventName, event)
+		return g.WorkflowDispatchEvent(ctx, deliveryID, eventName, event)
 
 	case *github.WorkflowRunEvent:
-		return g.WorkflowRunEvent(deliveryID, eventName, event)
+		return g.WorkflowRunEvent(ctx, deliveryID, eventName, event)
 
 	}
 	return nil

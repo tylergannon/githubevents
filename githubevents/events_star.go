@@ -8,7 +8,9 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/google/go-github/v62/github"
 	"golang.org/x/sync/errgroup"
 )
@@ -35,7 +37,7 @@ const (
 // 'deliveryID' (type: string) is the unique webhook delivery ID.
 // 'eventName' (type: string) is the name of the event.
 // 'event' (type: *github.StarEvent) is the webhook payload.
-type StarEventHandleFunc func(deliveryID string, eventName string, event *github.StarEvent) error
+type StarEventHandleFunc func(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error
 
 // OnStarEventCreated registers callbacks listening to events of type github.StarEvent and action 'created'.
 //
@@ -83,7 +85,7 @@ func (g *EventHandler) SetOnStarEventCreated(callbacks ...StarEventHandleFunc) {
 	g.onStarEvent[StarEventCreatedAction] = callbacks
 }
 
-func (g *EventHandler) handleStarEventCreated(deliveryID string, eventName string, event *github.StarEvent) error {
+func (g *EventHandler) handleStarEventCreated(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -103,7 +105,7 @@ func (g *EventHandler) handleStarEventCreated(deliveryID string, eventName strin
 			for _, h := range g.onStarEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -164,7 +166,7 @@ func (g *EventHandler) SetOnStarEventDeleted(callbacks ...StarEventHandleFunc) {
 	g.onStarEvent[StarEventDeletedAction] = callbacks
 }
 
-func (g *EventHandler) handleStarEventDeleted(deliveryID string, eventName string, event *github.StarEvent) error {
+func (g *EventHandler) handleStarEventDeleted(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -184,7 +186,7 @@ func (g *EventHandler) handleStarEventDeleted(deliveryID string, eventName strin
 			for _, h := range g.onStarEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -245,7 +247,7 @@ func (g *EventHandler) SetOnStarEventAny(callbacks ...StarEventHandleFunc) {
 	g.onStarEvent[StarEventAnyAction] = callbacks
 }
 
-func (g *EventHandler) handleStarEventAny(deliveryID string, eventName string, event *github.StarEvent) error {
+func (g *EventHandler) handleStarEventAny(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -256,7 +258,7 @@ func (g *EventHandler) handleStarEventAny(deliveryID string, eventName string, e
 	for _, h := range g.onStarEvent[StarEventAnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -278,14 +280,14 @@ func (g *EventHandler) handleStarEventAny(deliveryID string, eventName string, e
 // 3) All callbacks registered with OnAfterAny are executed in parallel.
 //
 // on any error all callbacks registered with OnError are executed in parallel.
-func (g *EventHandler) StarEvent(deliveryID string, eventName string, event *github.StarEvent) error {
+func (g *EventHandler) StarEvent(ctx context.Context, deliveryID string, eventName string, event *github.StarEvent) error {
 
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
 	action := *event.Action
 
-	err := g.handleBeforeAny(deliveryID, eventName, event)
+	err := g.handleBeforeAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
@@ -293,25 +295,25 @@ func (g *EventHandler) StarEvent(deliveryID string, eventName string, event *git
 	switch action {
 
 	case StarEventCreatedAction:
-		err := g.handleStarEventCreated(deliveryID, eventName, event)
+		err := g.handleStarEventCreated(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case StarEventDeletedAction:
-		err := g.handleStarEventDeleted(deliveryID, eventName, event)
+		err := g.handleStarEventDeleted(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	default:
-		err := g.handleStarEventAny(deliveryID, eventName, event)
+		err := g.handleStarEventAny(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 	}
 
-	err = g.handleAfterAny(deliveryID, eventName, event)
+	err = g.handleAfterAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}

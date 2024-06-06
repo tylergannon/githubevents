@@ -8,7 +8,9 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/google/go-github/v62/github"
 	"golang.org/x/sync/errgroup"
 )
@@ -27,7 +29,7 @@ const (
 // 'deliveryID' (type: string) is the unique webhook delivery ID.
 // 'eventName' (type: string) is the name of the event.
 // 'event' (type: *github.GollumEvent) is the webhook payload.
-type GollumEventHandleFunc func(deliveryID string, eventName string, event *github.GollumEvent) error
+type GollumEventHandleFunc func(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error
 
 // OnGollumEventAny registers callbacks listening to any events of type github.GollumEvent
 //
@@ -75,7 +77,7 @@ func (g *EventHandler) SetOnGollumEventAny(callbacks ...GollumEventHandleFunc) {
 	g.onGollumEvent[GollumEventAnyAction] = callbacks
 }
 
-func (g *EventHandler) handleGollumEventAny(deliveryID string, eventName string, event *github.GollumEvent) error {
+func (g *EventHandler) handleGollumEventAny(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -86,7 +88,7 @@ func (g *EventHandler) handleGollumEventAny(deliveryID string, eventName string,
 	for _, h := range g.onGollumEvent[GollumEventAnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -108,23 +110,23 @@ func (g *EventHandler) handleGollumEventAny(deliveryID string, eventName string,
 // 3) All callbacks registered with OnAfterAny are executed in parallel.
 //
 // on any error all callbacks registered with OnError are executed in parallel.
-func (g *EventHandler) GollumEvent(deliveryID string, eventName string, event *github.GollumEvent) error {
+func (g *EventHandler) GollumEvent(ctx context.Context, deliveryID string, eventName string, event *github.GollumEvent) error {
 
 	if event == nil {
 		return fmt.Errorf("event action was empty or nil")
 	}
 
-	err := g.handleBeforeAny(deliveryID, eventName, event)
+	err := g.handleBeforeAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
 
-	err = g.handleGollumEventAny(deliveryID, eventName, event)
+	err = g.handleGollumEventAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
 
-	err = g.handleAfterAny(deliveryID, eventName, event)
+	err = g.handleAfterAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}

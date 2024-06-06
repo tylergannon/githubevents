@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnCheckRunEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnCheckRunEventAny(t *testing.T) {
 			name: "must add single CheckRunEventHandleFunc",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnCheckRunEventAny(t *testing.T) {
 			name: "must add multiple CheckRunEventHandleFuncs",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnCheckRunEventAny(t *testing.T) {
 			name: "must add single CheckRunEventHandleFunc",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnCheckRunEventAny(t *testing.T) {
 			name: "must add multiple CheckRunEventHandleFuncs",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnCheckRunEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnCheckRunEventAny(func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+			g.SetOnCheckRunEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 				return nil
 			})
 			g.SetOnCheckRunEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnCheckRunEventAny(t *testing.T) {
 }
 
 func TestHandleCheckRunEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleCheckRunEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnCheckRunEventAny(func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+			g.OnCheckRunEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleCheckRunEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleCheckRunEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleCheckRunEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnCheckRunEventCreated(t *testing.T) {
 			name: "must add single CheckRunEventHandleFunc",
 			args: args{
 				callbacks: []CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnCheckRunEventCreated(t *testing.T) {
 			name: "must add multiple CheckRunEventHandleFunc",
 			args: args{
 				callbacks: []CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnCheckRunEventCreated(t *testing.T) {
 			name: "must add single CheckRunEventHandleFunc",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnCheckRunEventCreated(t *testing.T) {
 			name: "must add multiple CheckRunEventHandleFuncs",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnCheckRunEventCreated(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnCheckRunEventCreated(func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+			g.SetOnCheckRunEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 				return nil
 			})
 			g.SetOnCheckRunEventCreated(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnCheckRunEventCreated(t *testing.T) {
 }
 
 func TestHandleCheckRunEventCreated(t *testing.T) {
+	ctx := context.Background()
 	action := CheckRunEventCreatedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleCheckRunEventCreated(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnCheckRunEventCreated(func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+			g.OnCheckRunEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleCheckRunEventCreated(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleCheckRunEventCreated(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleCheckRunEventCreated() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnCheckRunEventCompleted(t *testing.T) {
 			name: "must add single CheckRunEventHandleFunc",
 			args: args{
 				callbacks: []CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnCheckRunEventCompleted(t *testing.T) {
 			name: "must add multiple CheckRunEventHandleFunc",
 			args: args{
 				callbacks: []CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnCheckRunEventCompleted(t *testing.T) {
 			name: "must add single CheckRunEventHandleFunc",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnCheckRunEventCompleted(t *testing.T) {
 			name: "must add multiple CheckRunEventHandleFuncs",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnCheckRunEventCompleted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnCheckRunEventCompleted(func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+			g.SetOnCheckRunEventCompleted(func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 				return nil
 			})
 			g.SetOnCheckRunEventCompleted(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnCheckRunEventCompleted(t *testing.T) {
 }
 
 func TestHandleCheckRunEventCompleted(t *testing.T) {
+	ctx := context.Background()
 	action := CheckRunEventCompletedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandleCheckRunEventCompleted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnCheckRunEventCompleted(func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+			g.OnCheckRunEventCompleted(func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleCheckRunEventCompleted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleCheckRunEventCompleted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleCheckRunEventCompleted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -559,7 +564,7 @@ func TestOnCheckRunEventReRequested(t *testing.T) {
 			name: "must add single CheckRunEventHandleFunc",
 			args: args{
 				callbacks: []CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -569,10 +574,10 @@ func TestOnCheckRunEventReRequested(t *testing.T) {
 			name: "must add multiple CheckRunEventHandleFunc",
 			args: args{
 				callbacks: []CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -603,7 +608,7 @@ func TestSetOnCheckRunEventReRequested(t *testing.T) {
 			name: "must add single CheckRunEventHandleFunc",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -614,10 +619,10 @@ func TestSetOnCheckRunEventReRequested(t *testing.T) {
 			name: "must add multiple CheckRunEventHandleFuncs",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -629,7 +634,7 @@ func TestSetOnCheckRunEventReRequested(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnCheckRunEventReRequested(func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+			g.SetOnCheckRunEventReRequested(func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 				return nil
 			})
 			g.SetOnCheckRunEventReRequested(tt.args.callbacks...)
@@ -641,6 +646,7 @@ func TestSetOnCheckRunEventReRequested(t *testing.T) {
 }
 
 func TestHandleCheckRunEventReRequested(t *testing.T) {
+	ctx := context.Background()
 	action := CheckRunEventReRequestedAction
 
 	emptyAction := ""
@@ -721,13 +727,13 @@ func TestHandleCheckRunEventReRequested(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnCheckRunEventReRequested(func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+			g.OnCheckRunEventReRequested(func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleCheckRunEventReRequested(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleCheckRunEventReRequested(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleCheckRunEventReRequested() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -746,7 +752,7 @@ func TestOnCheckRunEventRequestAction(t *testing.T) {
 			name: "must add single CheckRunEventHandleFunc",
 			args: args{
 				callbacks: []CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -756,10 +762,10 @@ func TestOnCheckRunEventRequestAction(t *testing.T) {
 			name: "must add multiple CheckRunEventHandleFunc",
 			args: args{
 				callbacks: []CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -790,7 +796,7 @@ func TestSetOnCheckRunEventRequestAction(t *testing.T) {
 			name: "must add single CheckRunEventHandleFunc",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -801,10 +807,10 @@ func TestSetOnCheckRunEventRequestAction(t *testing.T) {
 			name: "must add multiple CheckRunEventHandleFuncs",
 			args: args{
 				[]CheckRunEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 						return nil
 					},
 				},
@@ -816,7 +822,7 @@ func TestSetOnCheckRunEventRequestAction(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnCheckRunEventRequestAction(func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+			g.SetOnCheckRunEventRequestAction(func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 				return nil
 			})
 			g.SetOnCheckRunEventRequestAction(tt.args.callbacks...)
@@ -828,6 +834,7 @@ func TestSetOnCheckRunEventRequestAction(t *testing.T) {
 }
 
 func TestHandleCheckRunEventRequestAction(t *testing.T) {
+	ctx := context.Background()
 	action := CheckRunEventRequestActionAction
 
 	emptyAction := ""
@@ -908,13 +915,13 @@ func TestHandleCheckRunEventRequestAction(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnCheckRunEventRequestAction(func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+			g.OnCheckRunEventRequestAction(func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleCheckRunEventRequestAction(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleCheckRunEventRequestAction(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleCheckRunEventRequestAction() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -922,6 +929,7 @@ func TestHandleCheckRunEventRequestAction(t *testing.T) {
 }
 
 func TestCheckRunEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -943,7 +951,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -951,7 +959,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -959,7 +967,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -983,7 +991,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -991,7 +999,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -999,13 +1007,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventCreatedAction)
 								return nil
 							},
@@ -1027,7 +1035,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1035,7 +1043,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1043,13 +1051,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventCreatedAction)
 								return nil
 							},
@@ -1071,7 +1079,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1079,7 +1087,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1087,13 +1095,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventCreatedAction)
 								return nil
 							},
@@ -1116,7 +1124,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1124,7 +1132,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1132,13 +1140,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventCompletedAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventCompletedAction)
 								return nil
 							},
@@ -1160,7 +1168,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1168,7 +1176,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1176,13 +1184,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventCompletedAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventCompletedAction)
 								return nil
 							},
@@ -1204,7 +1212,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1212,7 +1220,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1220,13 +1228,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventCompletedAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventCompletedAction)
 								return nil
 							},
@@ -1249,7 +1257,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1257,7 +1265,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1265,13 +1273,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventReRequestedAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventReRequestedAction)
 								return nil
 							},
@@ -1293,7 +1301,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1301,7 +1309,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1309,13 +1317,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventReRequestedAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventReRequestedAction)
 								return nil
 							},
@@ -1337,7 +1345,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1345,7 +1353,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1353,13 +1361,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventReRequestedAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventReRequestedAction)
 								return nil
 							},
@@ -1382,7 +1390,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1390,7 +1398,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1398,13 +1406,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventRequestActionAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventRequestActionAction)
 								return nil
 							},
@@ -1426,7 +1434,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1434,7 +1442,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1442,13 +1450,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventRequestActionAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventRequestActionAction)
 								return nil
 							},
@@ -1470,7 +1478,7 @@ func TestCheckRunEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1478,7 +1486,7 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1486,13 +1494,13 @@ func TestCheckRunEvent(t *testing.T) {
 					},
 					onCheckRunEvent: map[string][]CheckRunEventHandleFunc{
 						CheckRunEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						CheckRunEventRequestActionAction: {
-							func(deliveryID string, eventName string, event *github.CheckRunEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.CheckRunEvent) error {
 								t.Logf("%s action called", CheckRunEventRequestActionAction)
 								return nil
 							},
@@ -1514,7 +1522,7 @@ func TestCheckRunEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.CheckRunEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.CheckRunEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("CheckRunEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

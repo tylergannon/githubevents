@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/cbrgm/githubevents/examples/simple-http-server-packages/plugins"
-	"github.com/cbrgm/githubevents/githubevents"
 	"net/http"
+
+	"github.com/tylergannon/githubevents/examples/simple-http-server-packages/plugins"
+	"github.com/tylergannon/githubevents/githubevents"
 )
 
 func main() {

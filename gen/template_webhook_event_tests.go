@@ -11,10 +11,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"testing"
 	"sync"
+
+	"github.com/google/go-github/v62/github"
 )
 
 {{ range $_, $webhook := .Webhooks }}
@@ -31,7 +33,7 @@ func TestOn{{ $webhook.Event }}Any(t *testing.T) {
 			name: "must add single {{ $webhook.Event }}HandleFunc",
 			args: args{
 				[]{{ $webhook.Event }}HandleFunc{
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
 				},
@@ -41,10 +43,10 @@ func TestOn{{ $webhook.Event }}Any(t *testing.T) {
 			name: "must add multiple {{ $webhook.Event }}HandleFuncs",
 			args: args{
 				[]{{ $webhook.Event }}HandleFunc{
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
 				},
@@ -75,7 +77,7 @@ func TestSetOn{{ $webhook.Event }}Any(t *testing.T) {
 			name: "must add single {{ $webhook.Event }}HandleFunc",
 			args: args{
 				[]{{ $webhook.Event }}HandleFunc{
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
 				},
@@ -86,10 +88,10 @@ func TestSetOn{{ $webhook.Event }}Any(t *testing.T) {
 			name: "must add multiple {{ $webhook.Event }}HandleFuncs",
 			args: args{
 				[]{{ $webhook.Event }}HandleFunc{
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
 				},
@@ -101,7 +103,7 @@ func TestSetOn{{ $webhook.Event }}Any(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOn{{ $webhook.Event }}Any(func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+			g.SetOn{{ $webhook.Event }}Any(func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 				return nil
 			})
 			g.SetOn{{ $webhook.Event }}Any(tt.args.callbacks...)
@@ -113,6 +115,7 @@ func TestSetOn{{ $webhook.Event }}Any(t *testing.T) {
 }
 
 func TestHandle{{ $webhook.Event }}Any(t *testing.T) {
+	ctx := context.Background()
 	{{ if $webhook.HasActions }}
 	action := "*"
 	{{ end }}
@@ -170,13 +173,13 @@ func TestHandle{{ $webhook.Event }}Any(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.On{{ $webhook.Event }}Any(func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+			g.On{{ $webhook.Event }}Any(func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handle{{ $webhook.Event }}Any(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handle{{ $webhook.Event }}Any(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandle{{ $webhook.Event }}Any() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -197,7 +200,7 @@ func TestOn{{ $action.Handler }}(t *testing.T) {
 			name: "must add single {{ $webhook.Event }}HandleFunc",
 			args: args{
 				callbacks: []{{ $webhook.Event }}HandleFunc{
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
 				},
@@ -207,10 +210,10 @@ func TestOn{{ $action.Handler }}(t *testing.T) {
 			name: "must add multiple {{ $webhook.Event }}HandleFunc",
 			args: args{
 				callbacks: []{{ $webhook.Event }}HandleFunc{
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
 				},
@@ -241,7 +244,7 @@ func TestSetOn{{ $action.Handler }}(t *testing.T) {
 			name: "must add single {{ $webhook.Event }}HandleFunc",
 			args: args{
 				[]{{ $webhook.Event }}HandleFunc{
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
 				},
@@ -252,10 +255,10 @@ func TestSetOn{{ $action.Handler }}(t *testing.T) {
 			name: "must add multiple {{ $webhook.Event }}HandleFuncs",
 			args: args{
 				[]{{ $webhook.Event }}HandleFunc{
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 						return nil
 					},
 				},
@@ -267,7 +270,7 @@ func TestSetOn{{ $action.Handler }}(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOn{{ $action.Handler }}(func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+			g.SetOn{{ $action.Handler }}(func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 				return nil
 			})
 			g.SetOn{{ $action.Handler }}(tt.args.callbacks...)
@@ -279,6 +282,7 @@ func TestSetOn{{ $action.Handler }}(t *testing.T) {
 }
 
 func TestHandle{{ $action.Handler }}(t *testing.T) {
+	ctx := context.Background()
 	action := {{ $action.Handler }}Action
 
 	emptyAction := ""
@@ -359,13 +363,13 @@ func TestHandle{{ $action.Handler }}(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.On{{ $action.Handler }}(func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+			g.On{{ $action.Handler }}(func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handle{{ $action.Handler }}(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handle{{ $action.Handler }}(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handle{{ $action.Handler }}() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -375,6 +379,7 @@ func TestHandle{{ $action.Handler }}(t *testing.T) {
 {{ end }}
 
 func Test{{ $webhook.Event }}(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -396,7 +401,7 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -404,7 +409,7 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -412,7 +417,7 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					},
 					on{{ $webhook.Event }}: map[string][]{{ $webhook.Event }}HandleFunc{
 						{{ $webhook.Event }}AnyAction: {
-							func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -440,7 +445,7 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -448,7 +453,7 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -456,13 +461,13 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					},
 					on{{ $webhook.Event }}: map[string][]{{ $webhook.Event }}HandleFunc{
 						{{ $webhook.Event }}AnyAction: {
-							func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						{{ $action.Handler }}Action: {
-							func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 								t.Logf("%s action called", {{ $action.Handler }}Action)
 								return nil
 							},
@@ -484,7 +489,7 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -492,7 +497,7 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -500,13 +505,13 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					},
 					on{{ $webhook.Event }}: map[string][]{{ $webhook.Event }}HandleFunc{
 						{{ $webhook.Event }}AnyAction: {
-							func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						{{ $action.Handler }}Action: {
-							func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 								t.Logf("%s action called", {{ $action.Handler }}Action)
 								return nil
 							},
@@ -528,7 +533,7 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -536,7 +541,7 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -544,13 +549,13 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 					},
 					on{{ $webhook.Event }}: map[string][]{{ $webhook.Event }}HandleFunc{
 						{{ $webhook.Event }}AnyAction: {
-							func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						{{ $action.Handler }}Action: {
-							func(deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.{{ $webhook.Event }}) error {
 								t.Logf("%s action called", {{ $action.Handler }}Action)
 								return nil
 							},
@@ -574,7 +579,7 @@ func Test{{ $webhook.Event }}(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.{{ $webhook.Event }}(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.{{ $webhook.Event }}(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("{{ $webhook.Event }}() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

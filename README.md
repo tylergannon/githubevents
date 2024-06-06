@@ -1,4 +1,4 @@
-# githubevents
+# githubevents-ctx
 
 <img src=".img/gopher.png" width="150px" align="right" />
 
@@ -10,6 +10,9 @@
 [![license](https://img.shields.io/badge/Docs-pkg.go.dev-blue.svg)](https://pkg.go.dev/github.com/cbrgm/githubevents/githubevents)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/cbrgm/githubevents/blob/master/LICENSE)
 ![GitHub stars](https://img.shields.io/github/stars/cbrgm/githubevents.svg?label=github%20stars)
+
+A fork of [cbrgm/githubevents](https://github.com/cbrgm/githubevents) with context support.  I really appreciate the work of the original
+authors, but I wanted something that would propagate context objects from the incoming request to the callback functions.
 
 `githubevents` is a webhook events toolset for the Go programming language inspired by ***[octokit/webhooks.js](https://github.com/octokit/webhooks.js)***.
 

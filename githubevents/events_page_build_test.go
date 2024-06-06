@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnPageBuildEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnPageBuildEventAny(t *testing.T) {
 			name: "must add single PageBuildEventHandleFunc",
 			args: args{
 				[]PageBuildEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnPageBuildEventAny(t *testing.T) {
 			name: "must add multiple PageBuildEventHandleFuncs",
 			args: args{
 				[]PageBuildEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnPageBuildEventAny(t *testing.T) {
 			name: "must add single PageBuildEventHandleFunc",
 			args: args{
 				[]PageBuildEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnPageBuildEventAny(t *testing.T) {
 			name: "must add multiple PageBuildEventHandleFuncs",
 			args: args{
 				[]PageBuildEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnPageBuildEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnPageBuildEventAny(func(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+			g.SetOnPageBuildEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 				return nil
 			})
 			g.SetOnPageBuildEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnPageBuildEventAny(t *testing.T) {
 }
 
 func TestHandlePageBuildEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	type args struct {
 		deliveryID string
@@ -158,13 +161,13 @@ func TestHandlePageBuildEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnPageBuildEventAny(func(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+			g.OnPageBuildEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handlePageBuildEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handlePageBuildEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandlePageBuildEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -172,6 +175,7 @@ func TestHandlePageBuildEventAny(t *testing.T) {
 }
 
 func TestPageBuildEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -193,7 +197,7 @@ func TestPageBuildEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -201,7 +205,7 @@ func TestPageBuildEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -209,7 +213,7 @@ func TestPageBuildEvent(t *testing.T) {
 					},
 					onPageBuildEvent: map[string][]PageBuildEventHandleFunc{
 						PageBuildEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.PageBuildEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.PageBuildEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -232,7 +236,7 @@ func TestPageBuildEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.PageBuildEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.PageBuildEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("PageBuildEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

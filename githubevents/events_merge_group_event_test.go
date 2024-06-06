@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnMergeGroupEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnMergeGroupEventAny(t *testing.T) {
 			name: "must add single MergeGroupEventHandleFunc",
 			args: args{
 				[]MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnMergeGroupEventAny(t *testing.T) {
 			name: "must add multiple MergeGroupEventHandleFuncs",
 			args: args{
 				[]MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnMergeGroupEventAny(t *testing.T) {
 			name: "must add single MergeGroupEventHandleFunc",
 			args: args{
 				[]MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnMergeGroupEventAny(t *testing.T) {
 			name: "must add multiple MergeGroupEventHandleFuncs",
 			args: args{
 				[]MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnMergeGroupEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnMergeGroupEventAny(func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+			g.SetOnMergeGroupEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 				return nil
 			})
 			g.SetOnMergeGroupEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnMergeGroupEventAny(t *testing.T) {
 }
 
 func TestHandleMergeGroupEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleMergeGroupEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnMergeGroupEventAny(func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+			g.OnMergeGroupEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleMergeGroupEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleMergeGroupEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleMergeGroupEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnMergeGroupEventChecksRequested(t *testing.T) {
 			name: "must add single MergeGroupEventHandleFunc",
 			args: args{
 				callbacks: []MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnMergeGroupEventChecksRequested(t *testing.T) {
 			name: "must add multiple MergeGroupEventHandleFunc",
 			args: args{
 				callbacks: []MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnMergeGroupEventChecksRequested(t *testing.T) {
 			name: "must add single MergeGroupEventHandleFunc",
 			args: args{
 				[]MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnMergeGroupEventChecksRequested(t *testing.T) {
 			name: "must add multiple MergeGroupEventHandleFuncs",
 			args: args{
 				[]MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnMergeGroupEventChecksRequested(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnMergeGroupEventChecksRequested(func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+			g.SetOnMergeGroupEventChecksRequested(func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 				return nil
 			})
 			g.SetOnMergeGroupEventChecksRequested(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnMergeGroupEventChecksRequested(t *testing.T) {
 }
 
 func TestHandleMergeGroupEventChecksRequested(t *testing.T) {
+	ctx := context.Background()
 	action := MergeGroupEventChecksRequestedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleMergeGroupEventChecksRequested(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnMergeGroupEventChecksRequested(func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+			g.OnMergeGroupEventChecksRequested(func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleMergeGroupEventChecksRequested(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleMergeGroupEventChecksRequested(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleMergeGroupEventChecksRequested() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnMergeGroupEventDestroyed(t *testing.T) {
 			name: "must add single MergeGroupEventHandleFunc",
 			args: args{
 				callbacks: []MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnMergeGroupEventDestroyed(t *testing.T) {
 			name: "must add multiple MergeGroupEventHandleFunc",
 			args: args{
 				callbacks: []MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnMergeGroupEventDestroyed(t *testing.T) {
 			name: "must add single MergeGroupEventHandleFunc",
 			args: args{
 				[]MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnMergeGroupEventDestroyed(t *testing.T) {
 			name: "must add multiple MergeGroupEventHandleFuncs",
 			args: args{
 				[]MergeGroupEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnMergeGroupEventDestroyed(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnMergeGroupEventDestroyed(func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+			g.SetOnMergeGroupEventDestroyed(func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 				return nil
 			})
 			g.SetOnMergeGroupEventDestroyed(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnMergeGroupEventDestroyed(t *testing.T) {
 }
 
 func TestHandleMergeGroupEventDestroyed(t *testing.T) {
+	ctx := context.Background()
 	action := MergeGroupEventDestroyedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandleMergeGroupEventDestroyed(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnMergeGroupEventDestroyed(func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+			g.OnMergeGroupEventDestroyed(func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleMergeGroupEventDestroyed(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleMergeGroupEventDestroyed(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleMergeGroupEventDestroyed() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -548,6 +553,7 @@ func TestHandleMergeGroupEventDestroyed(t *testing.T) {
 }
 
 func TestMergeGroupEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -569,7 +575,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -577,7 +583,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -585,7 +591,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onMergeGroupEvent: map[string][]MergeGroupEventHandleFunc{
 						MergeGroupEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -609,7 +615,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -617,7 +623,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -625,13 +631,13 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onMergeGroupEvent: map[string][]MergeGroupEventHandleFunc{
 						MergeGroupEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MergeGroupEventChecksRequestedAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Logf("%s action called", MergeGroupEventChecksRequestedAction)
 								return nil
 							},
@@ -653,7 +659,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -661,7 +667,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -669,13 +675,13 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onMergeGroupEvent: map[string][]MergeGroupEventHandleFunc{
 						MergeGroupEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MergeGroupEventChecksRequestedAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Logf("%s action called", MergeGroupEventChecksRequestedAction)
 								return nil
 							},
@@ -697,7 +703,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -705,7 +711,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -713,13 +719,13 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onMergeGroupEvent: map[string][]MergeGroupEventHandleFunc{
 						MergeGroupEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MergeGroupEventChecksRequestedAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Logf("%s action called", MergeGroupEventChecksRequestedAction)
 								return nil
 							},
@@ -742,7 +748,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -750,7 +756,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -758,13 +764,13 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onMergeGroupEvent: map[string][]MergeGroupEventHandleFunc{
 						MergeGroupEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MergeGroupEventDestroyedAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Logf("%s action called", MergeGroupEventDestroyedAction)
 								return nil
 							},
@@ -786,7 +792,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -794,7 +800,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -802,13 +808,13 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onMergeGroupEvent: map[string][]MergeGroupEventHandleFunc{
 						MergeGroupEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MergeGroupEventDestroyedAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Logf("%s action called", MergeGroupEventDestroyedAction)
 								return nil
 							},
@@ -830,7 +836,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -838,7 +844,7 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -846,13 +852,13 @@ func TestMergeGroupEvent(t *testing.T) {
 					},
 					onMergeGroupEvent: map[string][]MergeGroupEventHandleFunc{
 						MergeGroupEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						MergeGroupEventDestroyedAction: {
-							func(deliveryID string, eventName string, event *github.MergeGroupEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.MergeGroupEvent) error {
 								t.Logf("%s action called", MergeGroupEventDestroyedAction)
 								return nil
 							},
@@ -874,7 +880,7 @@ func TestMergeGroupEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.MergeGroupEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.MergeGroupEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("MergeGroupEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnInstallationEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnInstallationEventAny(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnInstallationEventAny(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFuncs",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnInstallationEventAny(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnInstallationEventAny(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFuncs",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnInstallationEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnInstallationEventAny(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.SetOnInstallationEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				return nil
 			})
 			g.SetOnInstallationEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnInstallationEventAny(t *testing.T) {
 }
 
 func TestHandleInstallationEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleInstallationEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnInstallationEventAny(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.OnInstallationEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleInstallationEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleInstallationEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleInstallationEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnInstallationEventCreated(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				callbacks: []InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnInstallationEventCreated(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFunc",
 			args: args{
 				callbacks: []InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnInstallationEventCreated(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnInstallationEventCreated(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFuncs",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnInstallationEventCreated(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnInstallationEventCreated(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.SetOnInstallationEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				return nil
 			})
 			g.SetOnInstallationEventCreated(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnInstallationEventCreated(t *testing.T) {
 }
 
 func TestHandleInstallationEventCreated(t *testing.T) {
+	ctx := context.Background()
 	action := InstallationEventCreatedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleInstallationEventCreated(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnInstallationEventCreated(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.OnInstallationEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleInstallationEventCreated(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleInstallationEventCreated(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleInstallationEventCreated() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnInstallationEventDeleted(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				callbacks: []InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnInstallationEventDeleted(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFunc",
 			args: args{
 				callbacks: []InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnInstallationEventDeleted(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnInstallationEventDeleted(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFuncs",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnInstallationEventDeleted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnInstallationEventDeleted(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.SetOnInstallationEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				return nil
 			})
 			g.SetOnInstallationEventDeleted(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnInstallationEventDeleted(t *testing.T) {
 }
 
 func TestHandleInstallationEventDeleted(t *testing.T) {
+	ctx := context.Background()
 	action := InstallationEventDeletedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandleInstallationEventDeleted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnInstallationEventDeleted(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.OnInstallationEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleInstallationEventDeleted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleInstallationEventDeleted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleInstallationEventDeleted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -559,7 +564,7 @@ func TestOnInstallationEventEventSuspend(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				callbacks: []InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -569,10 +574,10 @@ func TestOnInstallationEventEventSuspend(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFunc",
 			args: args{
 				callbacks: []InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -603,7 +608,7 @@ func TestSetOnInstallationEventEventSuspend(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -614,10 +619,10 @@ func TestSetOnInstallationEventEventSuspend(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFuncs",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -629,7 +634,7 @@ func TestSetOnInstallationEventEventSuspend(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnInstallationEventEventSuspend(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.SetOnInstallationEventEventSuspend(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				return nil
 			})
 			g.SetOnInstallationEventEventSuspend(tt.args.callbacks...)
@@ -641,6 +646,7 @@ func TestSetOnInstallationEventEventSuspend(t *testing.T) {
 }
 
 func TestHandleInstallationEventEventSuspend(t *testing.T) {
+	ctx := context.Background()
 	action := InstallationEventEventSuspendAction
 
 	emptyAction := ""
@@ -721,13 +727,13 @@ func TestHandleInstallationEventEventSuspend(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnInstallationEventEventSuspend(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.OnInstallationEventEventSuspend(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleInstallationEventEventSuspend(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleInstallationEventEventSuspend(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleInstallationEventEventSuspend() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -746,7 +752,7 @@ func TestOnInstallationEventEventUnsuspend(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				callbacks: []InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -756,10 +762,10 @@ func TestOnInstallationEventEventUnsuspend(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFunc",
 			args: args{
 				callbacks: []InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -790,7 +796,7 @@ func TestSetOnInstallationEventEventUnsuspend(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -801,10 +807,10 @@ func TestSetOnInstallationEventEventUnsuspend(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFuncs",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -816,7 +822,7 @@ func TestSetOnInstallationEventEventUnsuspend(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnInstallationEventEventUnsuspend(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.SetOnInstallationEventEventUnsuspend(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				return nil
 			})
 			g.SetOnInstallationEventEventUnsuspend(tt.args.callbacks...)
@@ -828,6 +834,7 @@ func TestSetOnInstallationEventEventUnsuspend(t *testing.T) {
 }
 
 func TestHandleInstallationEventEventUnsuspend(t *testing.T) {
+	ctx := context.Background()
 	action := InstallationEventEventUnsuspendAction
 
 	emptyAction := ""
@@ -908,13 +915,13 @@ func TestHandleInstallationEventEventUnsuspend(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnInstallationEventEventUnsuspend(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.OnInstallationEventEventUnsuspend(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleInstallationEventEventUnsuspend(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleInstallationEventEventUnsuspend(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleInstallationEventEventUnsuspend() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -933,7 +940,7 @@ func TestOnInstallationEventNewPermissionsAccepted(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				callbacks: []InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -943,10 +950,10 @@ func TestOnInstallationEventNewPermissionsAccepted(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFunc",
 			args: args{
 				callbacks: []InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -977,7 +984,7 @@ func TestSetOnInstallationEventNewPermissionsAccepted(t *testing.T) {
 			name: "must add single InstallationEventHandleFunc",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -988,10 +995,10 @@ func TestSetOnInstallationEventNewPermissionsAccepted(t *testing.T) {
 			name: "must add multiple InstallationEventHandleFuncs",
 			args: args{
 				[]InstallationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 						return nil
 					},
 				},
@@ -1003,7 +1010,7 @@ func TestSetOnInstallationEventNewPermissionsAccepted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnInstallationEventNewPermissionsAccepted(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.SetOnInstallationEventNewPermissionsAccepted(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				return nil
 			})
 			g.SetOnInstallationEventNewPermissionsAccepted(tt.args.callbacks...)
@@ -1015,6 +1022,7 @@ func TestSetOnInstallationEventNewPermissionsAccepted(t *testing.T) {
 }
 
 func TestHandleInstallationEventNewPermissionsAccepted(t *testing.T) {
+	ctx := context.Background()
 	action := InstallationEventNewPermissionsAcceptedAction
 
 	emptyAction := ""
@@ -1095,13 +1103,13 @@ func TestHandleInstallationEventNewPermissionsAccepted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnInstallationEventNewPermissionsAccepted(func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+			g.OnInstallationEventNewPermissionsAccepted(func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleInstallationEventNewPermissionsAccepted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleInstallationEventNewPermissionsAccepted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleInstallationEventNewPermissionsAccepted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1109,6 +1117,7 @@ func TestHandleInstallationEventNewPermissionsAccepted(t *testing.T) {
 }
 
 func TestInstallationEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -1130,7 +1139,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1138,7 +1147,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1146,7 +1155,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -1170,7 +1179,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1178,7 +1187,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1186,13 +1195,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventCreatedAction)
 								return nil
 							},
@@ -1214,7 +1223,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1222,7 +1231,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1230,13 +1239,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventCreatedAction)
 								return nil
 							},
@@ -1258,7 +1267,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1266,7 +1275,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1274,13 +1283,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventCreatedAction)
 								return nil
 							},
@@ -1303,7 +1312,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1311,7 +1320,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1319,13 +1328,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventDeletedAction)
 								return nil
 							},
@@ -1347,7 +1356,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1355,7 +1364,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1363,13 +1372,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventDeletedAction)
 								return nil
 							},
@@ -1391,7 +1400,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1399,7 +1408,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1407,13 +1416,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventDeletedAction)
 								return nil
 							},
@@ -1436,7 +1445,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1444,7 +1453,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1452,13 +1461,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventEventSuspendAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventEventSuspendAction)
 								return nil
 							},
@@ -1480,7 +1489,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1488,7 +1497,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1496,13 +1505,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventEventSuspendAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventEventSuspendAction)
 								return nil
 							},
@@ -1524,7 +1533,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1532,7 +1541,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1540,13 +1549,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventEventSuspendAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventEventSuspendAction)
 								return nil
 							},
@@ -1569,7 +1578,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1577,7 +1586,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1585,13 +1594,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventEventUnsuspendAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventEventUnsuspendAction)
 								return nil
 							},
@@ -1613,7 +1622,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1621,7 +1630,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1629,13 +1638,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventEventUnsuspendAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventEventUnsuspendAction)
 								return nil
 							},
@@ -1657,7 +1666,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1665,7 +1674,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1673,13 +1682,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventEventUnsuspendAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventEventUnsuspendAction)
 								return nil
 							},
@@ -1702,7 +1711,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1710,7 +1719,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1718,13 +1727,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventNewPermissionsAcceptedAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventNewPermissionsAcceptedAction)
 								return nil
 							},
@@ -1746,7 +1755,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1754,7 +1763,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1762,13 +1771,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventNewPermissionsAcceptedAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventNewPermissionsAcceptedAction)
 								return nil
 							},
@@ -1790,7 +1799,7 @@ func TestInstallationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1798,7 +1807,7 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1806,13 +1815,13 @@ func TestInstallationEvent(t *testing.T) {
 					},
 					onInstallationEvent: map[string][]InstallationEventHandleFunc{
 						InstallationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						InstallationEventNewPermissionsAcceptedAction: {
-							func(deliveryID string, eventName string, event *github.InstallationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.InstallationEvent) error {
 								t.Logf("%s action called", InstallationEventNewPermissionsAcceptedAction)
 								return nil
 							},
@@ -1834,7 +1843,7 @@ func TestInstallationEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.InstallationEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.InstallationEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("InstallationEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

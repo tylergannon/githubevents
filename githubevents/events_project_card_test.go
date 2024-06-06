@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnProjectCardEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnProjectCardEventAny(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnProjectCardEventAny(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFuncs",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnProjectCardEventAny(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnProjectCardEventAny(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFuncs",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnProjectCardEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectCardEventAny(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.SetOnProjectCardEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				return nil
 			})
 			g.SetOnProjectCardEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnProjectCardEventAny(t *testing.T) {
 }
 
 func TestHandleProjectCardEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleProjectCardEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectCardEventAny(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.OnProjectCardEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectCardEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectCardEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleProjectCardEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnProjectCardEventCreated(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				callbacks: []ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnProjectCardEventCreated(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFunc",
 			args: args{
 				callbacks: []ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnProjectCardEventCreated(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnProjectCardEventCreated(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFuncs",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnProjectCardEventCreated(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectCardEventCreated(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.SetOnProjectCardEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				return nil
 			})
 			g.SetOnProjectCardEventCreated(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnProjectCardEventCreated(t *testing.T) {
 }
 
 func TestHandleProjectCardEventCreated(t *testing.T) {
+	ctx := context.Background()
 	action := ProjectCardEventCreatedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleProjectCardEventCreated(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectCardEventCreated(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.OnProjectCardEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectCardEventCreated(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectCardEventCreated(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleProjectCardEventCreated() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnProjectCardEventEdited(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				callbacks: []ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnProjectCardEventEdited(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFunc",
 			args: args{
 				callbacks: []ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnProjectCardEventEdited(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnProjectCardEventEdited(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFuncs",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnProjectCardEventEdited(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectCardEventEdited(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.SetOnProjectCardEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				return nil
 			})
 			g.SetOnProjectCardEventEdited(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnProjectCardEventEdited(t *testing.T) {
 }
 
 func TestHandleProjectCardEventEdited(t *testing.T) {
+	ctx := context.Background()
 	action := ProjectCardEventEditedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandleProjectCardEventEdited(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectCardEventEdited(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.OnProjectCardEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectCardEventEdited(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectCardEventEdited(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleProjectCardEventEdited() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -559,7 +564,7 @@ func TestOnProjectCardEventConverted(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				callbacks: []ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -569,10 +574,10 @@ func TestOnProjectCardEventConverted(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFunc",
 			args: args{
 				callbacks: []ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -603,7 +608,7 @@ func TestSetOnProjectCardEventConverted(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -614,10 +619,10 @@ func TestSetOnProjectCardEventConverted(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFuncs",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -629,7 +634,7 @@ func TestSetOnProjectCardEventConverted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectCardEventConverted(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.SetOnProjectCardEventConverted(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				return nil
 			})
 			g.SetOnProjectCardEventConverted(tt.args.callbacks...)
@@ -641,6 +646,7 @@ func TestSetOnProjectCardEventConverted(t *testing.T) {
 }
 
 func TestHandleProjectCardEventConverted(t *testing.T) {
+	ctx := context.Background()
 	action := ProjectCardEventConvertedAction
 
 	emptyAction := ""
@@ -721,13 +727,13 @@ func TestHandleProjectCardEventConverted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectCardEventConverted(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.OnProjectCardEventConverted(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectCardEventConverted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectCardEventConverted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleProjectCardEventConverted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -746,7 +752,7 @@ func TestOnProjectCardEventMoved(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				callbacks: []ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -756,10 +762,10 @@ func TestOnProjectCardEventMoved(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFunc",
 			args: args{
 				callbacks: []ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -790,7 +796,7 @@ func TestSetOnProjectCardEventMoved(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -801,10 +807,10 @@ func TestSetOnProjectCardEventMoved(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFuncs",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -816,7 +822,7 @@ func TestSetOnProjectCardEventMoved(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectCardEventMoved(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.SetOnProjectCardEventMoved(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				return nil
 			})
 			g.SetOnProjectCardEventMoved(tt.args.callbacks...)
@@ -828,6 +834,7 @@ func TestSetOnProjectCardEventMoved(t *testing.T) {
 }
 
 func TestHandleProjectCardEventMoved(t *testing.T) {
+	ctx := context.Background()
 	action := ProjectCardEventMovedAction
 
 	emptyAction := ""
@@ -908,13 +915,13 @@ func TestHandleProjectCardEventMoved(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectCardEventMoved(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.OnProjectCardEventMoved(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectCardEventMoved(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectCardEventMoved(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleProjectCardEventMoved() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -933,7 +940,7 @@ func TestOnProjectCardEventDeleted(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				callbacks: []ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -943,10 +950,10 @@ func TestOnProjectCardEventDeleted(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFunc",
 			args: args{
 				callbacks: []ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -977,7 +984,7 @@ func TestSetOnProjectCardEventDeleted(t *testing.T) {
 			name: "must add single ProjectCardEventHandleFunc",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -988,10 +995,10 @@ func TestSetOnProjectCardEventDeleted(t *testing.T) {
 			name: "must add multiple ProjectCardEventHandleFuncs",
 			args: args{
 				[]ProjectCardEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 						return nil
 					},
 				},
@@ -1003,7 +1010,7 @@ func TestSetOnProjectCardEventDeleted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnProjectCardEventDeleted(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.SetOnProjectCardEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				return nil
 			})
 			g.SetOnProjectCardEventDeleted(tt.args.callbacks...)
@@ -1015,6 +1022,7 @@ func TestSetOnProjectCardEventDeleted(t *testing.T) {
 }
 
 func TestHandleProjectCardEventDeleted(t *testing.T) {
+	ctx := context.Background()
 	action := ProjectCardEventDeletedAction
 
 	emptyAction := ""
@@ -1095,13 +1103,13 @@ func TestHandleProjectCardEventDeleted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnProjectCardEventDeleted(func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+			g.OnProjectCardEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleProjectCardEventDeleted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleProjectCardEventDeleted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleProjectCardEventDeleted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1109,6 +1117,7 @@ func TestHandleProjectCardEventDeleted(t *testing.T) {
 }
 
 func TestProjectCardEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -1130,7 +1139,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1138,7 +1147,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1146,7 +1155,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -1170,7 +1179,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1178,7 +1187,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1186,13 +1195,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventCreatedAction)
 								return nil
 							},
@@ -1214,7 +1223,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1222,7 +1231,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1230,13 +1239,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventCreatedAction)
 								return nil
 							},
@@ -1258,7 +1267,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1266,7 +1275,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1274,13 +1283,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventCreatedAction)
 								return nil
 							},
@@ -1303,7 +1312,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1311,7 +1320,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1319,13 +1328,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventEditedAction)
 								return nil
 							},
@@ -1347,7 +1356,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1355,7 +1364,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1363,13 +1372,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventEditedAction)
 								return nil
 							},
@@ -1391,7 +1400,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1399,7 +1408,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1407,13 +1416,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventEditedAction)
 								return nil
 							},
@@ -1436,7 +1445,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1444,7 +1453,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1452,13 +1461,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventConvertedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventConvertedAction)
 								return nil
 							},
@@ -1480,7 +1489,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1488,7 +1497,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1496,13 +1505,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventConvertedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventConvertedAction)
 								return nil
 							},
@@ -1524,7 +1533,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1532,7 +1541,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1540,13 +1549,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventConvertedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventConvertedAction)
 								return nil
 							},
@@ -1569,7 +1578,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1577,7 +1586,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1585,13 +1594,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventMovedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventMovedAction)
 								return nil
 							},
@@ -1613,7 +1622,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1621,7 +1630,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1629,13 +1638,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventMovedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventMovedAction)
 								return nil
 							},
@@ -1657,7 +1666,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1665,7 +1674,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1673,13 +1682,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventMovedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventMovedAction)
 								return nil
 							},
@@ -1702,7 +1711,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1710,7 +1719,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1718,13 +1727,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventDeletedAction)
 								return nil
 							},
@@ -1746,7 +1755,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1754,7 +1763,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1762,13 +1771,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventDeletedAction)
 								return nil
 							},
@@ -1790,7 +1799,7 @@ func TestProjectCardEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1798,7 +1807,7 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1806,13 +1815,13 @@ func TestProjectCardEvent(t *testing.T) {
 					},
 					onProjectCardEvent: map[string][]ProjectCardEventHandleFunc{
 						ProjectCardEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						ProjectCardEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.ProjectCardEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.ProjectCardEvent) error {
 								t.Logf("%s action called", ProjectCardEventDeletedAction)
 								return nil
 							},
@@ -1834,7 +1843,7 @@ func TestProjectCardEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.ProjectCardEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.ProjectCardEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("ProjectCardEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

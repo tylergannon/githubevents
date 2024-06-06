@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnLabelEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnLabelEventAny(t *testing.T) {
 			name: "must add single LabelEventHandleFunc",
 			args: args{
 				[]LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnLabelEventAny(t *testing.T) {
 			name: "must add multiple LabelEventHandleFuncs",
 			args: args{
 				[]LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnLabelEventAny(t *testing.T) {
 			name: "must add single LabelEventHandleFunc",
 			args: args{
 				[]LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnLabelEventAny(t *testing.T) {
 			name: "must add multiple LabelEventHandleFuncs",
 			args: args{
 				[]LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnLabelEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnLabelEventAny(func(deliveryID string, eventName string, event *github.LabelEvent) error {
+			g.SetOnLabelEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 				return nil
 			})
 			g.SetOnLabelEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnLabelEventAny(t *testing.T) {
 }
 
 func TestHandleLabelEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleLabelEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnLabelEventAny(func(deliveryID string, eventName string, event *github.LabelEvent) error {
+			g.OnLabelEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleLabelEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleLabelEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleLabelEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnLabelEventCreated(t *testing.T) {
 			name: "must add single LabelEventHandleFunc",
 			args: args{
 				callbacks: []LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnLabelEventCreated(t *testing.T) {
 			name: "must add multiple LabelEventHandleFunc",
 			args: args{
 				callbacks: []LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnLabelEventCreated(t *testing.T) {
 			name: "must add single LabelEventHandleFunc",
 			args: args{
 				[]LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnLabelEventCreated(t *testing.T) {
 			name: "must add multiple LabelEventHandleFuncs",
 			args: args{
 				[]LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnLabelEventCreated(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnLabelEventCreated(func(deliveryID string, eventName string, event *github.LabelEvent) error {
+			g.SetOnLabelEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 				return nil
 			})
 			g.SetOnLabelEventCreated(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnLabelEventCreated(t *testing.T) {
 }
 
 func TestHandleLabelEventCreated(t *testing.T) {
+	ctx := context.Background()
 	action := LabelEventCreatedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleLabelEventCreated(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnLabelEventCreated(func(deliveryID string, eventName string, event *github.LabelEvent) error {
+			g.OnLabelEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleLabelEventCreated(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleLabelEventCreated(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleLabelEventCreated() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnLabelEventEdited(t *testing.T) {
 			name: "must add single LabelEventHandleFunc",
 			args: args{
 				callbacks: []LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnLabelEventEdited(t *testing.T) {
 			name: "must add multiple LabelEventHandleFunc",
 			args: args{
 				callbacks: []LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnLabelEventEdited(t *testing.T) {
 			name: "must add single LabelEventHandleFunc",
 			args: args{
 				[]LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnLabelEventEdited(t *testing.T) {
 			name: "must add multiple LabelEventHandleFuncs",
 			args: args{
 				[]LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnLabelEventEdited(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnLabelEventEdited(func(deliveryID string, eventName string, event *github.LabelEvent) error {
+			g.SetOnLabelEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 				return nil
 			})
 			g.SetOnLabelEventEdited(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnLabelEventEdited(t *testing.T) {
 }
 
 func TestHandleLabelEventEdited(t *testing.T) {
+	ctx := context.Background()
 	action := LabelEventEditedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandleLabelEventEdited(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnLabelEventEdited(func(deliveryID string, eventName string, event *github.LabelEvent) error {
+			g.OnLabelEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleLabelEventEdited(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleLabelEventEdited(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleLabelEventEdited() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -559,7 +564,7 @@ func TestOnLabelEventDeleted(t *testing.T) {
 			name: "must add single LabelEventHandleFunc",
 			args: args{
 				callbacks: []LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -569,10 +574,10 @@ func TestOnLabelEventDeleted(t *testing.T) {
 			name: "must add multiple LabelEventHandleFunc",
 			args: args{
 				callbacks: []LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -603,7 +608,7 @@ func TestSetOnLabelEventDeleted(t *testing.T) {
 			name: "must add single LabelEventHandleFunc",
 			args: args{
 				[]LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -614,10 +619,10 @@ func TestSetOnLabelEventDeleted(t *testing.T) {
 			name: "must add multiple LabelEventHandleFuncs",
 			args: args{
 				[]LabelEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.LabelEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 						return nil
 					},
 				},
@@ -629,7 +634,7 @@ func TestSetOnLabelEventDeleted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnLabelEventDeleted(func(deliveryID string, eventName string, event *github.LabelEvent) error {
+			g.SetOnLabelEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 				return nil
 			})
 			g.SetOnLabelEventDeleted(tt.args.callbacks...)
@@ -641,6 +646,7 @@ func TestSetOnLabelEventDeleted(t *testing.T) {
 }
 
 func TestHandleLabelEventDeleted(t *testing.T) {
+	ctx := context.Background()
 	action := LabelEventDeletedAction
 
 	emptyAction := ""
@@ -721,13 +727,13 @@ func TestHandleLabelEventDeleted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnLabelEventDeleted(func(deliveryID string, eventName string, event *github.LabelEvent) error {
+			g.OnLabelEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleLabelEventDeleted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleLabelEventDeleted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleLabelEventDeleted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -735,6 +741,7 @@ func TestHandleLabelEventDeleted(t *testing.T) {
 }
 
 func TestLabelEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -756,7 +763,7 @@ func TestLabelEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -764,7 +771,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -772,7 +779,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onLabelEvent: map[string][]LabelEventHandleFunc{
 						LabelEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -796,7 +803,7 @@ func TestLabelEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -804,7 +811,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -812,13 +819,13 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onLabelEvent: map[string][]LabelEventHandleFunc{
 						LabelEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						LabelEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Logf("%s action called", LabelEventCreatedAction)
 								return nil
 							},
@@ -840,7 +847,7 @@ func TestLabelEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -848,7 +855,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -856,13 +863,13 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onLabelEvent: map[string][]LabelEventHandleFunc{
 						LabelEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						LabelEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Logf("%s action called", LabelEventCreatedAction)
 								return nil
 							},
@@ -884,7 +891,7 @@ func TestLabelEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -892,7 +899,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -900,13 +907,13 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onLabelEvent: map[string][]LabelEventHandleFunc{
 						LabelEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						LabelEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Logf("%s action called", LabelEventCreatedAction)
 								return nil
 							},
@@ -929,7 +936,7 @@ func TestLabelEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -937,7 +944,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -945,13 +952,13 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onLabelEvent: map[string][]LabelEventHandleFunc{
 						LabelEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						LabelEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Logf("%s action called", LabelEventEditedAction)
 								return nil
 							},
@@ -973,7 +980,7 @@ func TestLabelEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -981,7 +988,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -989,13 +996,13 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onLabelEvent: map[string][]LabelEventHandleFunc{
 						LabelEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						LabelEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Logf("%s action called", LabelEventEditedAction)
 								return nil
 							},
@@ -1017,7 +1024,7 @@ func TestLabelEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1025,7 +1032,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1033,13 +1040,13 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onLabelEvent: map[string][]LabelEventHandleFunc{
 						LabelEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						LabelEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Logf("%s action called", LabelEventEditedAction)
 								return nil
 							},
@@ -1062,7 +1069,7 @@ func TestLabelEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1070,7 +1077,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1078,13 +1085,13 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onLabelEvent: map[string][]LabelEventHandleFunc{
 						LabelEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						LabelEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Logf("%s action called", LabelEventDeletedAction)
 								return nil
 							},
@@ -1106,7 +1113,7 @@ func TestLabelEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1114,7 +1121,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1122,13 +1129,13 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onLabelEvent: map[string][]LabelEventHandleFunc{
 						LabelEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						LabelEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Logf("%s action called", LabelEventDeletedAction)
 								return nil
 							},
@@ -1150,7 +1157,7 @@ func TestLabelEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1158,7 +1165,7 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1166,13 +1173,13 @@ func TestLabelEvent(t *testing.T) {
 					},
 					onLabelEvent: map[string][]LabelEventHandleFunc{
 						LabelEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						LabelEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.LabelEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.LabelEvent) error {
 								t.Logf("%s action called", LabelEventDeletedAction)
 								return nil
 							},
@@ -1194,7 +1201,7 @@ func TestLabelEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.LabelEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.LabelEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("LabelEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

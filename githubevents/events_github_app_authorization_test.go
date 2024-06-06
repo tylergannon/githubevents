@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnGitHubAppAuthorizationEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnGitHubAppAuthorizationEventAny(t *testing.T) {
 			name: "must add single GitHubAppAuthorizationEventHandleFunc",
 			args: args{
 				[]GitHubAppAuthorizationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnGitHubAppAuthorizationEventAny(t *testing.T) {
 			name: "must add multiple GitHubAppAuthorizationEventHandleFuncs",
 			args: args{
 				[]GitHubAppAuthorizationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnGitHubAppAuthorizationEventAny(t *testing.T) {
 			name: "must add single GitHubAppAuthorizationEventHandleFunc",
 			args: args{
 				[]GitHubAppAuthorizationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnGitHubAppAuthorizationEventAny(t *testing.T) {
 			name: "must add multiple GitHubAppAuthorizationEventHandleFuncs",
 			args: args{
 				[]GitHubAppAuthorizationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnGitHubAppAuthorizationEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnGitHubAppAuthorizationEventAny(func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+			g.SetOnGitHubAppAuthorizationEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 				return nil
 			})
 			g.SetOnGitHubAppAuthorizationEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnGitHubAppAuthorizationEventAny(t *testing.T) {
 }
 
 func TestHandleGitHubAppAuthorizationEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleGitHubAppAuthorizationEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnGitHubAppAuthorizationEventAny(func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+			g.OnGitHubAppAuthorizationEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleGitHubAppAuthorizationEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleGitHubAppAuthorizationEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleGitHubAppAuthorizationEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnGitHubAppAuthorizationEventRevoked(t *testing.T) {
 			name: "must add single GitHubAppAuthorizationEventHandleFunc",
 			args: args{
 				callbacks: []GitHubAppAuthorizationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnGitHubAppAuthorizationEventRevoked(t *testing.T) {
 			name: "must add multiple GitHubAppAuthorizationEventHandleFunc",
 			args: args{
 				callbacks: []GitHubAppAuthorizationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnGitHubAppAuthorizationEventRevoked(t *testing.T) {
 			name: "must add single GitHubAppAuthorizationEventHandleFunc",
 			args: args{
 				[]GitHubAppAuthorizationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnGitHubAppAuthorizationEventRevoked(t *testing.T) {
 			name: "must add multiple GitHubAppAuthorizationEventHandleFuncs",
 			args: args{
 				[]GitHubAppAuthorizationEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnGitHubAppAuthorizationEventRevoked(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnGitHubAppAuthorizationEventRevoked(func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+			g.SetOnGitHubAppAuthorizationEventRevoked(func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 				return nil
 			})
 			g.SetOnGitHubAppAuthorizationEventRevoked(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnGitHubAppAuthorizationEventRevoked(t *testing.T) {
 }
 
 func TestHandleGitHubAppAuthorizationEventRevoked(t *testing.T) {
+	ctx := context.Background()
 	action := GitHubAppAuthorizationEventRevokedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleGitHubAppAuthorizationEventRevoked(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnGitHubAppAuthorizationEventRevoked(func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+			g.OnGitHubAppAuthorizationEventRevoked(func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleGitHubAppAuthorizationEventRevoked(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleGitHubAppAuthorizationEventRevoked(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleGitHubAppAuthorizationEventRevoked() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -361,6 +365,7 @@ func TestHandleGitHubAppAuthorizationEventRevoked(t *testing.T) {
 }
 
 func TestGitHubAppAuthorizationEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -382,7 +387,7 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -390,7 +395,7 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -398,7 +403,7 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					},
 					onGitHubAppAuthorizationEvent: map[string][]GitHubAppAuthorizationEventHandleFunc{
 						GitHubAppAuthorizationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -422,7 +427,7 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -430,7 +435,7 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -438,13 +443,13 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					},
 					onGitHubAppAuthorizationEvent: map[string][]GitHubAppAuthorizationEventHandleFunc{
 						GitHubAppAuthorizationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						GitHubAppAuthorizationEventRevokedAction: {
-							func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 								t.Logf("%s action called", GitHubAppAuthorizationEventRevokedAction)
 								return nil
 							},
@@ -466,7 +471,7 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -474,7 +479,7 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -482,13 +487,13 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					},
 					onGitHubAppAuthorizationEvent: map[string][]GitHubAppAuthorizationEventHandleFunc{
 						GitHubAppAuthorizationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						GitHubAppAuthorizationEventRevokedAction: {
-							func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 								t.Logf("%s action called", GitHubAppAuthorizationEventRevokedAction)
 								return nil
 							},
@@ -510,7 +515,7 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -518,7 +523,7 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -526,13 +531,13 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 					},
 					onGitHubAppAuthorizationEvent: map[string][]GitHubAppAuthorizationEventHandleFunc{
 						GitHubAppAuthorizationEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						GitHubAppAuthorizationEventRevokedAction: {
-							func(deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.GitHubAppAuthorizationEvent) error {
 								t.Logf("%s action called", GitHubAppAuthorizationEventRevokedAction)
 								return nil
 							},
@@ -554,7 +559,7 @@ func TestGitHubAppAuthorizationEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.GitHubAppAuthorizationEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.GitHubAppAuthorizationEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("GitHubAppAuthorizationEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

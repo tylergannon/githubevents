@@ -1,17 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
-	"github.com/cbrgm/githubevents/githubevents"
 	"github.com/google/go-github/v62/github"
+
+	"github.com/tylergannon/githubevents/githubevents"
 )
 
 func main() {
 	handle := githubevents.New("")
 
-	handle.OnIssueCommentCreated(func(deliveryID string, eventName string, event *github.IssueCommentEvent) error {
+	handle.OnIssueCommentCreated(func(_ context.Context, deliveryID string, eventName string, event *github.IssueCommentEvent) error {
 		fmt.Printf("%s has commented on issue %d", *event.Sender.Login, *event.Issue.ID)
 		return nil
 	})

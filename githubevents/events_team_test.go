@@ -8,10 +8,12 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"errors"
-	"github.com/google/go-github/v62/github"
 	"sync"
 	"testing"
+
+	"github.com/google/go-github/v62/github"
 )
 
 func TestOnTeamEventAny(t *testing.T) {
@@ -26,7 +28,7 @@ func TestOnTeamEventAny(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -36,10 +38,10 @@ func TestOnTeamEventAny(t *testing.T) {
 			name: "must add multiple TeamEventHandleFuncs",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -70,7 +72,7 @@ func TestSetOnTeamEventAny(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -81,10 +83,10 @@ func TestSetOnTeamEventAny(t *testing.T) {
 			name: "must add multiple TeamEventHandleFuncs",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -96,7 +98,7 @@ func TestSetOnTeamEventAny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnTeamEventAny(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.SetOnTeamEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				return nil
 			})
 			g.SetOnTeamEventAny(tt.args.callbacks...)
@@ -108,6 +110,7 @@ func TestSetOnTeamEventAny(t *testing.T) {
 }
 
 func TestHandleTeamEventAny(t *testing.T) {
+	ctx := context.Background()
 
 	action := "*"
 
@@ -160,13 +163,13 @@ func TestHandleTeamEventAny(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnTeamEventAny(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.OnTeamEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleTeamEventAny(tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleTeamEventAny(ctx, tt.args.deliveryID, tt.args.deliveryID, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TestHandleTeamEventAny() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -185,7 +188,7 @@ func TestOnTeamEventCreated(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				callbacks: []TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -195,10 +198,10 @@ func TestOnTeamEventCreated(t *testing.T) {
 			name: "must add multiple TeamEventHandleFunc",
 			args: args{
 				callbacks: []TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -229,7 +232,7 @@ func TestSetOnTeamEventCreated(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -240,10 +243,10 @@ func TestSetOnTeamEventCreated(t *testing.T) {
 			name: "must add multiple TeamEventHandleFuncs",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -255,7 +258,7 @@ func TestSetOnTeamEventCreated(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnTeamEventCreated(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.SetOnTeamEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				return nil
 			})
 			g.SetOnTeamEventCreated(tt.args.callbacks...)
@@ -267,6 +270,7 @@ func TestSetOnTeamEventCreated(t *testing.T) {
 }
 
 func TestHandleTeamEventCreated(t *testing.T) {
+	ctx := context.Background()
 	action := TeamEventCreatedAction
 
 	emptyAction := ""
@@ -347,13 +351,13 @@ func TestHandleTeamEventCreated(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnTeamEventCreated(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.OnTeamEventCreated(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleTeamEventCreated(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleTeamEventCreated(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleTeamEventCreated() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -372,7 +376,7 @@ func TestOnTeamEventDeleted(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				callbacks: []TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -382,10 +386,10 @@ func TestOnTeamEventDeleted(t *testing.T) {
 			name: "must add multiple TeamEventHandleFunc",
 			args: args{
 				callbacks: []TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -416,7 +420,7 @@ func TestSetOnTeamEventDeleted(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -427,10 +431,10 @@ func TestSetOnTeamEventDeleted(t *testing.T) {
 			name: "must add multiple TeamEventHandleFuncs",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -442,7 +446,7 @@ func TestSetOnTeamEventDeleted(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnTeamEventDeleted(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.SetOnTeamEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				return nil
 			})
 			g.SetOnTeamEventDeleted(tt.args.callbacks...)
@@ -454,6 +458,7 @@ func TestSetOnTeamEventDeleted(t *testing.T) {
 }
 
 func TestHandleTeamEventDeleted(t *testing.T) {
+	ctx := context.Background()
 	action := TeamEventDeletedAction
 
 	emptyAction := ""
@@ -534,13 +539,13 @@ func TestHandleTeamEventDeleted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnTeamEventDeleted(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.OnTeamEventDeleted(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleTeamEventDeleted(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleTeamEventDeleted(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleTeamEventDeleted() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -559,7 +564,7 @@ func TestOnTeamEventEdited(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				callbacks: []TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -569,10 +574,10 @@ func TestOnTeamEventEdited(t *testing.T) {
 			name: "must add multiple TeamEventHandleFunc",
 			args: args{
 				callbacks: []TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -603,7 +608,7 @@ func TestSetOnTeamEventEdited(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -614,10 +619,10 @@ func TestSetOnTeamEventEdited(t *testing.T) {
 			name: "must add multiple TeamEventHandleFuncs",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -629,7 +634,7 @@ func TestSetOnTeamEventEdited(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnTeamEventEdited(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.SetOnTeamEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				return nil
 			})
 			g.SetOnTeamEventEdited(tt.args.callbacks...)
@@ -641,6 +646,7 @@ func TestSetOnTeamEventEdited(t *testing.T) {
 }
 
 func TestHandleTeamEventEdited(t *testing.T) {
+	ctx := context.Background()
 	action := TeamEventEditedAction
 
 	emptyAction := ""
@@ -721,13 +727,13 @@ func TestHandleTeamEventEdited(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnTeamEventEdited(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.OnTeamEventEdited(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleTeamEventEdited(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleTeamEventEdited(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleTeamEventEdited() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -746,7 +752,7 @@ func TestOnTeamEventAddedToRepository(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				callbacks: []TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -756,10 +762,10 @@ func TestOnTeamEventAddedToRepository(t *testing.T) {
 			name: "must add multiple TeamEventHandleFunc",
 			args: args{
 				callbacks: []TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -790,7 +796,7 @@ func TestSetOnTeamEventAddedToRepository(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -801,10 +807,10 @@ func TestSetOnTeamEventAddedToRepository(t *testing.T) {
 			name: "must add multiple TeamEventHandleFuncs",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -816,7 +822,7 @@ func TestSetOnTeamEventAddedToRepository(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnTeamEventAddedToRepository(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.SetOnTeamEventAddedToRepository(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				return nil
 			})
 			g.SetOnTeamEventAddedToRepository(tt.args.callbacks...)
@@ -828,6 +834,7 @@ func TestSetOnTeamEventAddedToRepository(t *testing.T) {
 }
 
 func TestHandleTeamEventAddedToRepository(t *testing.T) {
+	ctx := context.Background()
 	action := TeamEventAddedToRepositoryAction
 
 	emptyAction := ""
@@ -908,13 +915,13 @@ func TestHandleTeamEventAddedToRepository(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnTeamEventAddedToRepository(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.OnTeamEventAddedToRepository(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleTeamEventAddedToRepository(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleTeamEventAddedToRepository(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleTeamEventAddedToRepository() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -933,7 +940,7 @@ func TestOnTeamEventRemovedFromRepository(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				callbacks: []TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -943,10 +950,10 @@ func TestOnTeamEventRemovedFromRepository(t *testing.T) {
 			name: "must add multiple TeamEventHandleFunc",
 			args: args{
 				callbacks: []TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -977,7 +984,7 @@ func TestSetOnTeamEventRemovedFromRepository(t *testing.T) {
 			name: "must add single TeamEventHandleFunc",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -988,10 +995,10 @@ func TestSetOnTeamEventRemovedFromRepository(t *testing.T) {
 			name: "must add multiple TeamEventHandleFuncs",
 			args: args{
 				[]TeamEventHandleFunc{
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
-					func(deliveryID string, eventName string, event *github.TeamEvent) error {
+					func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 						return nil
 					},
 				},
@@ -1003,7 +1010,7 @@ func TestSetOnTeamEventRemovedFromRepository(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
 			// add callbacks to be overwritten
-			g.SetOnTeamEventRemovedFromRepository(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.SetOnTeamEventRemovedFromRepository(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				return nil
 			})
 			g.SetOnTeamEventRemovedFromRepository(tt.args.callbacks...)
@@ -1015,6 +1022,7 @@ func TestSetOnTeamEventRemovedFromRepository(t *testing.T) {
 }
 
 func TestHandleTeamEventRemovedFromRepository(t *testing.T) {
+	ctx := context.Background()
 	action := TeamEventRemovedFromRepositoryAction
 
 	emptyAction := ""
@@ -1095,13 +1103,13 @@ func TestHandleTeamEventRemovedFromRepository(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := New("fake")
-			g.OnTeamEventRemovedFromRepository(func(deliveryID string, eventName string, event *github.TeamEvent) error {
+			g.OnTeamEventRemovedFromRepository(func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 				if tt.args.fail {
 					return errors.New("fake error")
 				}
 				return nil
 			})
-			if err := g.handleTeamEventRemovedFromRepository(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.handleTeamEventRemovedFromRepository(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("handleTeamEventRemovedFromRepository() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1109,6 +1117,7 @@ func TestHandleTeamEventRemovedFromRepository(t *testing.T) {
 }
 
 func TestTeamEvent(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		handler *EventHandler
 	}
@@ -1130,7 +1139,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1138,7 +1147,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1146,7 +1155,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
@@ -1170,7 +1179,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1178,7 +1187,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1186,13 +1195,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventCreatedAction)
 								return nil
 							},
@@ -1214,7 +1223,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1222,7 +1231,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1230,13 +1239,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventCreatedAction)
 								return nil
 							},
@@ -1258,7 +1267,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1266,7 +1275,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1274,13 +1283,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventCreatedAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventCreatedAction)
 								return nil
 							},
@@ -1303,7 +1312,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1311,7 +1320,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1319,13 +1328,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventDeletedAction)
 								return nil
 							},
@@ -1347,7 +1356,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1355,7 +1364,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1363,13 +1372,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventDeletedAction)
 								return nil
 							},
@@ -1391,7 +1400,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1399,7 +1408,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1407,13 +1416,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventDeletedAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventDeletedAction)
 								return nil
 							},
@@ -1436,7 +1445,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1444,7 +1453,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1452,13 +1461,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventEditedAction)
 								return nil
 							},
@@ -1480,7 +1489,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1488,7 +1497,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1496,13 +1505,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventEditedAction)
 								return nil
 							},
@@ -1524,7 +1533,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1532,7 +1541,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1540,13 +1549,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventEditedAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventEditedAction)
 								return nil
 							},
@@ -1569,7 +1578,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1577,7 +1586,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1585,13 +1594,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventAddedToRepositoryAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventAddedToRepositoryAction)
 								return nil
 							},
@@ -1613,7 +1622,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1621,7 +1630,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1629,13 +1638,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventAddedToRepositoryAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventAddedToRepositoryAction)
 								return nil
 							},
@@ -1657,7 +1666,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1665,7 +1674,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1673,13 +1682,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventAddedToRepositoryAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventAddedToRepositoryAction)
 								return nil
 							},
@@ -1702,7 +1711,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1710,7 +1719,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1718,13 +1727,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventRemovedFromRepositoryAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventRemovedFromRepositoryAction)
 								return nil
 							},
@@ -1746,7 +1755,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1754,7 +1763,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1762,13 +1771,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventRemovedFromRepositoryAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventRemovedFromRepositoryAction)
 								return nil
 							},
@@ -1790,7 +1799,7 @@ func TestTeamEvent(t *testing.T) {
 					WebhookSecret: "fake",
 					onBeforeAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onBeforeAny called")
 								return nil
 							},
@@ -1798,7 +1807,7 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onAfterAny: map[string][]EventHandleFunc{
 						EventAnyAction: {
-							func(deliveryID string, eventName string, event any) error {
+							func(ctx context.Context, deliveryID string, eventName string, event any) error {
 								t.Log("onAfterAny called")
 								return nil
 							},
@@ -1806,13 +1815,13 @@ func TestTeamEvent(t *testing.T) {
 					},
 					onTeamEvent: map[string][]TeamEventHandleFunc{
 						TeamEventAnyAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Log("onAny action called")
 								return nil
 							},
 						},
 						TeamEventRemovedFromRepositoryAction: {
-							func(deliveryID string, eventName string, event *github.TeamEvent) error {
+							func(ctx context.Context, deliveryID string, eventName string, event *github.TeamEvent) error {
 								t.Logf("%s action called", TeamEventRemovedFromRepositoryAction)
 								return nil
 							},
@@ -1834,7 +1843,7 @@ func TestTeamEvent(t *testing.T) {
 				WebhookSecret: "fake",
 				mu:            sync.RWMutex{},
 			}
-			if err := g.TeamEvent(tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
+			if err := g.TeamEvent(ctx, tt.args.deliveryID, tt.args.eventName, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("TeamEvent() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

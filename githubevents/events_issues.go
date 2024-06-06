@@ -8,7 +8,9 @@ package githubevents
 // make edits in gen/generate.go
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/google/go-github/v62/github"
 	"golang.org/x/sync/errgroup"
 )
@@ -91,7 +93,7 @@ const (
 // 'deliveryID' (type: string) is the unique webhook delivery ID.
 // 'eventName' (type: string) is the name of the event.
 // 'event' (type: *github.IssuesEvent) is the webhook payload.
-type IssuesEventHandleFunc func(deliveryID string, eventName string, event *github.IssuesEvent) error
+type IssuesEventHandleFunc func(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error
 
 // OnIssuesEventOpened registers callbacks listening to events of type github.IssuesEvent and action 'opened'.
 //
@@ -139,7 +141,7 @@ func (g *EventHandler) SetOnIssuesEventOpened(callbacks ...IssuesEventHandleFunc
 	g.onIssuesEvent[IssuesEventOpenedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventOpened(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventOpened(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -159,7 +161,7 @@ func (g *EventHandler) handleIssuesEventOpened(deliveryID string, eventName stri
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -220,7 +222,7 @@ func (g *EventHandler) SetOnIssuesEventEdited(callbacks ...IssuesEventHandleFunc
 	g.onIssuesEvent[IssuesEventEditedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventEdited(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventEdited(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -240,7 +242,7 @@ func (g *EventHandler) handleIssuesEventEdited(deliveryID string, eventName stri
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -301,7 +303,7 @@ func (g *EventHandler) SetOnIssuesEventDeleted(callbacks ...IssuesEventHandleFun
 	g.onIssuesEvent[IssuesEventDeletedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventDeleted(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventDeleted(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -321,7 +323,7 @@ func (g *EventHandler) handleIssuesEventDeleted(deliveryID string, eventName str
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -382,7 +384,7 @@ func (g *EventHandler) SetOnIssuesEventPinned(callbacks ...IssuesEventHandleFunc
 	g.onIssuesEvent[IssuesEventPinnedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventPinned(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventPinned(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -402,7 +404,7 @@ func (g *EventHandler) handleIssuesEventPinned(deliveryID string, eventName stri
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -463,7 +465,7 @@ func (g *EventHandler) SetOnIssuesEventUnpinned(callbacks ...IssuesEventHandleFu
 	g.onIssuesEvent[IssuesEventUnpinnedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventUnpinned(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventUnpinned(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -483,7 +485,7 @@ func (g *EventHandler) handleIssuesEventUnpinned(deliveryID string, eventName st
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -544,7 +546,7 @@ func (g *EventHandler) SetOnIssuesEventClosed(callbacks ...IssuesEventHandleFunc
 	g.onIssuesEvent[IssuesEventClosedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventClosed(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventClosed(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -564,7 +566,7 @@ func (g *EventHandler) handleIssuesEventClosed(deliveryID string, eventName stri
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -625,7 +627,7 @@ func (g *EventHandler) SetOnIssuesEventReopened(callbacks ...IssuesEventHandleFu
 	g.onIssuesEvent[IssuesEventReopenedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventReopened(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventReopened(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -645,7 +647,7 @@ func (g *EventHandler) handleIssuesEventReopened(deliveryID string, eventName st
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -706,7 +708,7 @@ func (g *EventHandler) SetOnIssuesEventAssigned(callbacks ...IssuesEventHandleFu
 	g.onIssuesEvent[IssuesEventAssignedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventAssigned(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventAssigned(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -726,7 +728,7 @@ func (g *EventHandler) handleIssuesEventAssigned(deliveryID string, eventName st
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -787,7 +789,7 @@ func (g *EventHandler) SetOnIssuesEventUnassigned(callbacks ...IssuesEventHandle
 	g.onIssuesEvent[IssuesEventUnassignedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventUnassigned(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventUnassigned(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -807,7 +809,7 @@ func (g *EventHandler) handleIssuesEventUnassigned(deliveryID string, eventName 
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -868,7 +870,7 @@ func (g *EventHandler) SetOnIssuesEventLabeled(callbacks ...IssuesEventHandleFun
 	g.onIssuesEvent[IssuesEventLabeledAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventLabeled(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventLabeled(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -888,7 +890,7 @@ func (g *EventHandler) handleIssuesEventLabeled(deliveryID string, eventName str
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -949,7 +951,7 @@ func (g *EventHandler) SetOnIssuesEventUnlabeled(callbacks ...IssuesEventHandleF
 	g.onIssuesEvent[IssuesEventUnlabeledAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventUnlabeled(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventUnlabeled(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -969,7 +971,7 @@ func (g *EventHandler) handleIssuesEventUnlabeled(deliveryID string, eventName s
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -1030,7 +1032,7 @@ func (g *EventHandler) SetOnIssuesEventLocked(callbacks ...IssuesEventHandleFunc
 	g.onIssuesEvent[IssuesEventLockedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventLocked(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventLocked(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -1050,7 +1052,7 @@ func (g *EventHandler) handleIssuesEventLocked(deliveryID string, eventName stri
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -1111,7 +1113,7 @@ func (g *EventHandler) SetOnIssuesEventUnlocked(callbacks ...IssuesEventHandleFu
 	g.onIssuesEvent[IssuesEventUnlockedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventUnlocked(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventUnlocked(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -1131,7 +1133,7 @@ func (g *EventHandler) handleIssuesEventUnlocked(deliveryID string, eventName st
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -1192,7 +1194,7 @@ func (g *EventHandler) SetOnIssuesEventTransferred(callbacks ...IssuesEventHandl
 	g.onIssuesEvent[IssuesEventTransferredAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventTransferred(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventTransferred(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -1212,7 +1214,7 @@ func (g *EventHandler) handleIssuesEventTransferred(deliveryID string, eventName
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -1273,7 +1275,7 @@ func (g *EventHandler) SetOnIssuesEventMilestoned(callbacks ...IssuesEventHandle
 	g.onIssuesEvent[IssuesEventMilestonedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventMilestoned(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventMilestoned(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -1293,7 +1295,7 @@ func (g *EventHandler) handleIssuesEventMilestoned(deliveryID string, eventName 
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -1354,7 +1356,7 @@ func (g *EventHandler) SetOnIssuesEventDeMilestoned(callbacks ...IssuesEventHand
 	g.onIssuesEvent[IssuesEventDeMilestonedAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventDeMilestoned(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventDeMilestoned(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
@@ -1374,7 +1376,7 @@ func (g *EventHandler) handleIssuesEventDeMilestoned(deliveryID string, eventNam
 			for _, h := range g.onIssuesEvent[action] {
 				handle := h
 				eg.Go(func() error {
-					err := handle(deliveryID, eventName, event)
+					err := handle(ctx, deliveryID, eventName, event)
 					if err != nil {
 						return err
 					}
@@ -1435,7 +1437,7 @@ func (g *EventHandler) SetOnIssuesEventAny(callbacks ...IssuesEventHandleFunc) {
 	g.onIssuesEvent[IssuesEventAnyAction] = callbacks
 }
 
-func (g *EventHandler) handleIssuesEventAny(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) handleIssuesEventAny(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 	if event == nil {
 		return fmt.Errorf("event was empty or nil")
 	}
@@ -1446,7 +1448,7 @@ func (g *EventHandler) handleIssuesEventAny(deliveryID string, eventName string,
 	for _, h := range g.onIssuesEvent[IssuesEventAnyAction] {
 		handle := h
 		eg.Go(func() error {
-			err := handle(deliveryID, eventName, event)
+			err := handle(ctx, deliveryID, eventName, event)
 			if err != nil {
 				return err
 			}
@@ -1468,14 +1470,14 @@ func (g *EventHandler) handleIssuesEventAny(deliveryID string, eventName string,
 // 3) All callbacks registered with OnAfterAny are executed in parallel.
 //
 // on any error all callbacks registered with OnError are executed in parallel.
-func (g *EventHandler) IssuesEvent(deliveryID string, eventName string, event *github.IssuesEvent) error {
+func (g *EventHandler) IssuesEvent(ctx context.Context, deliveryID string, eventName string, event *github.IssuesEvent) error {
 
 	if event == nil || event.Action == nil || *event.Action == "" {
 		return fmt.Errorf("event action was empty or nil")
 	}
 	action := *event.Action
 
-	err := g.handleBeforeAny(deliveryID, eventName, event)
+	err := g.handleBeforeAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
@@ -1483,109 +1485,109 @@ func (g *EventHandler) IssuesEvent(deliveryID string, eventName string, event *g
 	switch action {
 
 	case IssuesEventOpenedAction:
-		err := g.handleIssuesEventOpened(deliveryID, eventName, event)
+		err := g.handleIssuesEventOpened(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventEditedAction:
-		err := g.handleIssuesEventEdited(deliveryID, eventName, event)
+		err := g.handleIssuesEventEdited(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventDeletedAction:
-		err := g.handleIssuesEventDeleted(deliveryID, eventName, event)
+		err := g.handleIssuesEventDeleted(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventPinnedAction:
-		err := g.handleIssuesEventPinned(deliveryID, eventName, event)
+		err := g.handleIssuesEventPinned(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventUnpinnedAction:
-		err := g.handleIssuesEventUnpinned(deliveryID, eventName, event)
+		err := g.handleIssuesEventUnpinned(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventClosedAction:
-		err := g.handleIssuesEventClosed(deliveryID, eventName, event)
+		err := g.handleIssuesEventClosed(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventReopenedAction:
-		err := g.handleIssuesEventReopened(deliveryID, eventName, event)
+		err := g.handleIssuesEventReopened(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventAssignedAction:
-		err := g.handleIssuesEventAssigned(deliveryID, eventName, event)
+		err := g.handleIssuesEventAssigned(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventUnassignedAction:
-		err := g.handleIssuesEventUnassigned(deliveryID, eventName, event)
+		err := g.handleIssuesEventUnassigned(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventLabeledAction:
-		err := g.handleIssuesEventLabeled(deliveryID, eventName, event)
+		err := g.handleIssuesEventLabeled(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventUnlabeledAction:
-		err := g.handleIssuesEventUnlabeled(deliveryID, eventName, event)
+		err := g.handleIssuesEventUnlabeled(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventLockedAction:
-		err := g.handleIssuesEventLocked(deliveryID, eventName, event)
+		err := g.handleIssuesEventLocked(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventUnlockedAction:
-		err := g.handleIssuesEventUnlocked(deliveryID, eventName, event)
+		err := g.handleIssuesEventUnlocked(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventTransferredAction:
-		err := g.handleIssuesEventTransferred(deliveryID, eventName, event)
+		err := g.handleIssuesEventTransferred(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventMilestonedAction:
-		err := g.handleIssuesEventMilestoned(deliveryID, eventName, event)
+		err := g.handleIssuesEventMilestoned(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	case IssuesEventDeMilestonedAction:
-		err := g.handleIssuesEventDeMilestoned(deliveryID, eventName, event)
+		err := g.handleIssuesEventDeMilestoned(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 
 	default:
-		err := g.handleIssuesEventAny(deliveryID, eventName, event)
+		err := g.handleIssuesEventAny(ctx, deliveryID, eventName, event)
 		if err != nil {
 			return g.handleError(deliveryID, eventName, event, err)
 		}
 	}
 
-	err = g.handleAfterAny(deliveryID, eventName, event)
+	err = g.handleAfterAny(ctx, deliveryID, eventName, event)
 	if err != nil {
 		return g.handleError(deliveryID, eventName, event, err)
 	}
